@@ -21,13 +21,13 @@ namespace ExRegex.Regexies
             get { return "*"; }
         }
 
-        public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str)//TODO:fix
+        public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str, MatingContext context)//TODO:fix
         {
             var stack = new Stack<RegexMatch>();//データ構造：スタックとは先入れ後出し(FILO)のリストです
             var pointer = str;
             while (true)
             {
-                var match = _target.HeadMatch(pointer);
+                var match = _target.HeadMatch(pointer,context);
                 if (match == null) break;
                 stack.Push(match);
                 pointer = pointer.SubString(match.Length);

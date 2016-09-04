@@ -21,9 +21,9 @@ namespace ExRegex.Regexies
             get { return "?"; }
         }
 
-        public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str)
+        public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str,MatingContext context)
         {
-            var match = _target.HeadMatch(str);
+            var match = _target.HeadMatch(str,context);
             if (match != null)
             {
                 yield return new CompositeMatch(this, str, match);

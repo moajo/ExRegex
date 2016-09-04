@@ -7,7 +7,7 @@ namespace ExRegex.Regexies
     /// |
     /// いずれかがマッチすればマッチ。
     /// </summary>
-    public class Or:Regex
+    public class Or : Regex
     {
         private readonly Regex[] _regexes;
 
@@ -21,11 +21,11 @@ namespace ExRegex.Regexies
             get { return "Or"; }
         }
 
-        public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str)
+        public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str, MatingContext context)
         {
             foreach (var regex in _regexes)
             {
-                foreach (var match in regex.SimpleMatchings(str))
+                foreach (var match in regex.SimpleMatchings(str, context))
                 {
                     yield return new CompositeMatch(this, str, match);
                 }

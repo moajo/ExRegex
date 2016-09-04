@@ -45,6 +45,7 @@
     <Compile Include="Match\CompositeMatch.cs" />
     <Compile Include="Match\PositionMatch.cs" />
     <Compile Include="Match\RegexMatch.cs" />
+    <Compile Include="MatingContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Regex.cs" />
     <Compile Include="Regexies\Any.cs" />
@@ -53,12 +54,14 @@
     <Compile Include="Regexies\Empty.cs" />
     <Compile Include="Regexies\Head.cs" />
     <Compile Include="Regexies\Literal.cs" />
+    <Compile Include="Regexies\Named.cs" />
     <Compile Include="Regexies\NegativeLookahead.cs" />
     <Compile Include="Regexies\Not.cs" />
     <Compile Include="Regexies\OneOrMore.cs" />
     <Compile Include="Regexies\Or.cs" />
     <Compile Include="Regexies\OrInvert.cs" />
     <Compile Include="Regexies\PositiveLookahead.cs" />
+    <Compile Include="Regexies\Reference.cs" />
     <Compile Include="Regexies\Tail.cs" />
     <Compile Include="Regexies\ZeroOrMore.cs" />
     <Compile Include="Regexies\ZeroOrOne.cs" />

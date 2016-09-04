@@ -10,7 +10,7 @@ namespace ExRegex.Regexies
     /// </summary>
     public class OrInvert:Regex
     {
-        private Char[] _content;
+        private readonly Char[] _content;
 
         public OrInvert(params Char[] chars)
         {
@@ -21,9 +21,9 @@ namespace ExRegex.Regexies
             get { return "[^]"; }
         }
 
-        public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str)
+        public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str, MatingContext context)
         {
-            if (_content.All(c => c.HeadMatch(str) == null))
+            if (_content.All(c => c.HeadMatch(str,context) == null))
             {
                 yield return new AtomicMatch(this,str,1);
             }

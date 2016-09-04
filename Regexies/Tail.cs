@@ -10,7 +10,7 @@ namespace ExRegex.Regexies
             get { return "Tail"; }
         }
 
-        public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str)
+        public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str, MatingContext context)
         {
             if (str.Pointer == str.RawStr.Length)
             {

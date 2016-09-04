@@ -7,7 +7,7 @@ namespace ExRegex.Regexies
     /// +
     /// １回以上の反復にマッチ
     /// </summary>
-    public class OneOrMore:Regex
+    public class OneOrMore : Regex
     {
         private readonly Regex _target;
 
@@ -21,12 +21,12 @@ namespace ExRegex.Regexies
             get { return "+"; }
         }
 
-        public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str)
+        public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str, MatingContext context)
         {
-            foreach (var match2 in _target.SimpleMatchings(str))//TODO fix
+            foreach (var match2 in _target.SimpleMatchings(str, context))//TODO fix
             {
                 var next = str.SubString(match2.Length);
-                foreach (var matching in SimpleMatchings(next))
+                foreach (var matching in SimpleMatchings(next, context))
                 {
                     var composite = matching as CompositeMatch;
                     var list = new List<RegexMatch>();
@@ -38,8 +38,8 @@ namespace ExRegex.Regexies
                     {
                         list.AddRange(composite.Matches);
                     }
-                    list.Insert(0,match2);
-                    yield return new CompositeMatch(this,str,list.ToArray());
+                    list.Insert(0, match2);
+                    yield return new CompositeMatch(this, str, list.ToArray());
                 }
                 yield return new CompositeMatch(this, str, match2);
             }

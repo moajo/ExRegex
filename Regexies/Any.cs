@@ -14,7 +14,7 @@ namespace ExRegex.Regexies
             get { return "Any"; }
         }
 
-        public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str)
+        public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str, MatingContext context)
         {
             if (str.Value().Length > 0)
             {

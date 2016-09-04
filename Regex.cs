@@ -36,13 +36,13 @@ namespace ExRegex
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
-        public RegexMatch HeadMatch(StringPointer str)
+        public RegexMatch HeadMatch(StringPointer str, MatingContext context)
         {
-            return HeadMatches(str).FirstOrDefault();
+            return HeadMatches(str,context).FirstOrDefault();
         }
-        public RegexMatch HeadMatch(string str)
+        public RegexMatch HeadMatch(string str, MatingContext context)
         {
-            return HeadMatch(new StringPointer(str));
+            return HeadMatch(new StringPointer(str),context);
         }
 
         /// <summary>
@@ -50,32 +50,32 @@ namespace ExRegex
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
-        public IEnumerable<RegexMatch> HeadMatches(StringPointer str)
+        public IEnumerable<RegexMatch> HeadMatches(StringPointer str,MatingContext context)
         {
             if (_nextRegex == null)//末端は自身のマッチを返せばいい。
             {
-                foreach (var matching in SimpleMatchings(str))
+                foreach (var matching in SimpleMatchings(str, context))
                 {
                     yield return matching;
                 }
             }
             else//末端以外は、自分以降にマッチが存在するマッチを返す。
             {
-                foreach (var selfMatch in SimpleMatchings(str))
+                foreach (var selfMatch in SimpleMatchings(str, context))
                 {
                     var nextStr = str.SubString(selfMatch.Length);
-                    foreach (var nextMatch in _nextRegex.HeadMatches(nextStr))
+                    foreach (var nextMatch in _nextRegex.HeadMatches(nextStr, context))
                     {
-                        yield return new ArrayMatch(str,selfMatch,nextMatch);
+                        yield return new ArrayMatch(str, selfMatch, nextMatch);
                     }
                 }
             }
         }
 
-        public bool IsHeadMatch(string str)
-        {
-            return HeadMatch(str) != null;
-        }
+        //public bool IsHeadMatch(string str)
+        //{
+        //    return HeadMatch(str) != null;
+        //}
 
         /// <summary>
         /// テキスト全体でマッチ箇所を全て列挙
@@ -87,7 +87,7 @@ namespace ExRegex
             for (int i = 0; i < str.Length; i++)
             {
                 var subStr = str.SubString(i);
-                foreach (var match in HeadMatches(subStr))
+                foreach (var match in HeadMatches(subStr,new MatingContext()))
                 {
                     yield return match;
                 }
@@ -102,8 +102,9 @@ namespace ExRegex
         /// 与えられた文字列が先頭からこの正規表現にマッチするか判定。後続のことは考慮しない。
         /// </summary>
         /// <param name="str"></param>
+        /// <param name="context"></param>
         /// <returns>マッチ優先度高い順のマッチ。マッチしないときは空のIEnumerable</returns>
-        public abstract IEnumerable<RegexMatch> SimpleMatchings(StringPointer str);
+        public abstract IEnumerable<RegexMatch> SimpleMatchings(StringPointer str, MatingContext context);
 
 
         /// <summary>

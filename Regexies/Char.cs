@@ -19,7 +19,7 @@ namespace ExRegex.Regexies
             get { return "char"; }
         }
 
-        public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str)
+        public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str, MatingContext context)
         {
             var s = new string(new char[] {_content});
             if (str.Value().StartsWith(s))

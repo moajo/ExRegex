@@ -23,12 +23,12 @@ namespace ExRegex.Regexies
             get { return "(?=)"; }
         }
 
-        public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str)
+        public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str, MatingContext context)
         {
-            foreach (var targetMatch in _target.SimpleMatchings(str))
+            foreach (var targetMatch in _target.SimpleMatchings(str, context))
             {
                 var nextPos = str.SubString(targetMatch.Length);
-                var conditionMatch = _condition.SimpleMatchings(nextPos).FirstOrDefault();
+                var conditionMatch = _condition.SimpleMatchings(nextPos,context).FirstOrDefault();
                 if (conditionMatch != null)
                 {
                     yield return new CompositeMatch(this, str, targetMatch);

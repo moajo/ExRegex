@@ -7,7 +7,7 @@ namespace ExRegex.Regexies
     /// 普通の正規表現にはない？
     /// 否定。マッチしなければその位置にマッチ。
     /// </summary>
-    public class Not:Regex
+    public class Not : Regex
     {
         private readonly Regex _arg;
 
@@ -21,13 +21,13 @@ namespace ExRegex.Regexies
             get { return "Not"; }
         }
 
-        public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str)
+        public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str, MatingContext context)
         {
-            foreach (var match in _arg.SimpleMatchings(str))
+            foreach (var match in _arg.SimpleMatchings(str, context))
             {
                 yield break;
             }
-            yield return new PositionMatch(this,str);
+            yield return new PositionMatch(this, str);
         }
     }
 }

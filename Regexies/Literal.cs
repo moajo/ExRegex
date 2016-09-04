@@ -20,7 +20,7 @@ namespace ExRegex.Regexies
             get { return "Literal"; }
         }
 
-        public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str)
+        public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str, MatingContext context)
         {
             if (str.Value().StartsWith(this.str))
             {

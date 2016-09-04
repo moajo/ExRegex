@@ -13,7 +13,7 @@ namespace ExRegex.Regexies
             get { return "Empty"; }
         }
 
-        public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str)
+        public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str, MatingContext context)
         {
             yield return new PositionMatch(this,str);
         }
