@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using ExRegex.Match;
 using ExRegex.Regexies;
@@ -32,7 +33,7 @@ namespace ExRegex
 
 
         /// <summary>
-        /// このRegexChainの再優先マッチを取得
+        /// このRegexChainの再優先マッチを取得。マッチしなければnull
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
@@ -72,11 +73,6 @@ namespace ExRegex
             }
         }
 
-        //public bool IsHeadMatch(string str)
-        //{
-        //    return HeadMatch(str) != null;
-        //}
-
         /// <summary>
         /// テキスト全体でマッチ箇所を全て列挙
         /// </summary>
@@ -96,6 +92,25 @@ namespace ExRegex
         public IEnumerable<RegexMatch> Matches(string str)
         {
             return Matches((StringPointer)str);
+        }
+
+        /// <summary>
+        /// 範囲重複を許容せず最高優先マッチ箇所をすべて列挙
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public IEnumerable<RegexMatch> MatchesRegular(StringPointer str)
+        {
+            for (int i = 0; i < str.Length + 1; i++)
+            {
+                var subStr = str.SubString(i);
+                var match = HeadMatch(subStr,new MatingContext());
+                if (match != null)
+                {
+                    yield return match;
+                    i += Math.Max(match.Length - 1,0);
+                }
+            }
         }
 
         /// <summary>
