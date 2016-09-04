@@ -5,6 +5,8 @@ VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExRegex", "ExRegex.csproj", "{6F1C6843-AB46-4A88-860D-0D761048E8E8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExRegexSample", "ExRegexSample\ExRegexSample.csproj", "{BEB84568-714E-4C7F-8BED-F007D298D879}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{6F1C6843-AB46-4A88-860D-0D761048E8E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6F1C6843-AB46-4A88-860D-0D761048E8E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6F1C6843-AB46-4A88-860D-0D761048E8E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BEB84568-714E-4C7F-8BED-F007D298D879}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BEB84568-714E-4C7F-8BED-F007D298D879}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BEB84568-714E-4C7F-8BED-F007D298D879}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BEB84568-714E-4C7F-8BED-F007D298D879}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
