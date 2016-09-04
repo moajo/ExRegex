@@ -33,7 +33,7 @@ namespace ExRegex.Regexies
             {
                 context.NamedRegexes.Add(_label, this);
             }
-            return _content.SimpleMatchings(str,context);
+            return _content.HeadMatches(str, context);
         }
     }
 }

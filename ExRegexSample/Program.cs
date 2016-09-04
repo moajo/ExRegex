@@ -72,12 +72,24 @@ namespace ExRegexSample
             //list3.Add(Tuple.Create("aatestatest", Regex.Make().Literal("test")));
             //list3.Add(Tuple.Create("aatestatesttasttust", Regex.Make().Literal("t").To(new Capture(new Any())).Literal("st")));
             //list3.Add(Tuple.Create("aatestteaatestesaates", Regex.Make().To(new Named("Label",new Literal("a"))).To(new Reference("Label"))));
-            var rg = Regex.Make().Literal("(").To(new ZeroOrMore(new Any())).Literal(")");
+            var rg = Regex.Make().Literal("(").To(new ZeroOrMore(new Any())).Literal(")");//単純括弧ok
+            var rg2 = Regex.Make().To(new ZeroOrMore(new OrInvert('(',')')));//括弧じゃない奴らの連続ちょっとちがうけどok
+            var rg3 = Regex.Make().To(new Or("()",new OneOrMore(new OrInvert('(', ')'))));//ok
+            //var rgx4 = Regex.Make().To(new Named("kakko",new Literal("(").To(new Or(new ZeroOrMore(new OrInvert('(', ')')),new Reference("kakko"))).Literal(")")));//ok
+            var rgx4 = Regex.Make().To(new Named("kakko",new Literal("(").To(new ZeroOrMore(new Or(new OrInvert('(', ')'), new Reference("kakko")))).Literal(")")));//ok
             //list3.Add(Tuple.Create("aaa(ddd)fff", rg));//ok
             //list3.Add(Tuple.Create("aaa(ddd)f(f)f", rg));//ok
             //list3.Add(Tuple.Create("aaa(d(d)d)f(f)f", rg));//ok
             //list3.Add(Tuple.Create("aatestatest", Regex.Make().To(new OneOrMore(new Literal("a")))));
             //list3.Add(Tuple.Create("xy", Regex.Make().To(new ZeroOrMore("a"))));
+            //list3.Add(Tuple.Create("aaasd(dsff)fsdf()(sdf)sd((dfg(df)A(A)S()F(A",rg2));
+            //list3.Add(Tuple.Create("fsdf()(sdf))A(A)S()F(A",rg3));
+            //list3.Add(Tuple.Create("()",rgx4));
+            //list3.Add(Tuple.Create("(a)",rgx4));
+            //list3.Add(Tuple.Create("(aa)",rgx4));
+            list3.Add(Tuple.Create("(a(a))",rgx4));
+            list3.Add(Tuple.Create("bb(a(a))",rgx4));
+            list3.Add(Tuple.Create("nn(a(a)nn", rgx4));
 
             foreach (var tuple in list3)
             {
@@ -102,11 +114,20 @@ namespace ExRegexSample
             Console.WriteLine("-----------------------------------------------------------------------------------");
             Console.WriteLine(message);
             Console.WriteLine(String.Format("target:{0}", targetText));
+
+            Console.WriteLine("@@@MatchRegular@@@");
             var count = 0;
+            foreach (var match in regex.MatchesRegular((StringPointer)targetText))
+            {
+                Console.WriteLine();
+                Console.WriteLine("@" + count++);
+                Console.WriteLine(String.Format("{0} >>{1}<< {2}", match.Str.RawStr.Substring(0, match.Str.Pointer), match.MatchStr, match.Str.SubString(match.Length)));
+            }
+            count = 0;
             foreach (var match in regex.Matches((StringPointer)targetText))
             {
                 Console.WriteLine();
-                Console.WriteLine(count++);
+                Console.WriteLine("@" + count++);
                 Console.WriteLine(String.Format("{0} >>{1}<< {2}", match.Str.RawStr.Substring(0, match.Str.Pointer), match.MatchStr, match.Str.SubString(match.Length)));
 
                 Console.WriteLine("@@@Capture@@@");
@@ -114,6 +135,7 @@ namespace ExRegexSample
                 {
                     Console.WriteLine(String.Format("{0}", capture.MatchStr));
                 }
+
                 Console.WriteLine("@@@Match@@@");
                 Console.WriteLine(match);
             }
