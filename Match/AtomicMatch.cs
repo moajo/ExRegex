@@ -12,6 +12,10 @@ namespace ExRegex.Match
         private readonly int _length;
         public AtomicMatch(Regex regex, StringPointer str,int length) : base(regex,str)
         {
+            if (str.Length < length)
+            {
+                throw new Exception("すすめすぎ");
+            }
             _length = length;
         }
 

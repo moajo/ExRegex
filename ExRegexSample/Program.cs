@@ -39,20 +39,10 @@ namespace ExRegexSample
             //list.Add(Tuple.Create("(?=): match",Regex.Make().To(new PositiveLookahead("aaa","b"))));
             //list.Add(Tuple.Create("(?!): unmatch",Regex.Make().To(new PositiveLookahead("aaa","a"))));
             //list.Add(Tuple.Create("(?!): match",Regex.Make().To(new PositiveLookahead("aaa","b"))));
-
-            Console.WriteLine(String.Format("targetText: {0}", text));
+            
             for (int i = 0; i < list.Count; i++)
             {
                 ShowLog(list[i].Item1,text,list[i].Item2);
-                //Console.WriteLine("-----------------------------------------------------------------------------------");
-                //Console.WriteLine(String.Format("{0}", list[i].Item1));
-                //var count = 0;
-                //foreach (var match in list[i].Item2.HeadMatches((StringPointer)text, new MatingContext()))
-                //{
-                //    Console.WriteLine();
-                //    Console.WriteLine(count++);
-                //    Console.WriteLine(match?.ToString() ?? "null");
-                //}
             }
 
             //---------------------------------結合先頭マッチテスト--------------------------------------------
@@ -75,15 +65,6 @@ namespace ExRegexSample
             foreach (var tuple in list2)
             {
                 ShowLog(tuple.Item1,tuple.Item3,tuple.Item2);
-                //Console.WriteLine("-----------------------------------------------------------------------------------");
-                //Console.WriteLine(String.Format("{0}   target:{1}", tuple.Item1, tuple.Item3));
-                //var count = 0;
-                //foreach (var match in tuple.Item2.HeadMatches((StringPointer)tuple.Item3, new MatingContext()))
-                //{
-                //    Console.WriteLine();
-                //    Console.WriteLine(count++);
-                //    Console.WriteLine(match);
-                //}
             }
 
             //---------------------------------全体マッチテスト--------------------------------------------
@@ -96,19 +77,9 @@ namespace ExRegexSample
             {
                 Console.WriteLine("-----------------------------------------------------------------------------------");
                 Console.WriteLine(String.Format("target:{0}", tuple.Item1));
-                var count = 0;
                 foreach (var match in tuple.Item2.Matches((StringPointer)tuple.Item1))
                 {
                     ShowLog("3rdTest::", tuple.Item1, tuple.Item2);
-                    //Console.WriteLine();
-                    //Console.WriteLine(count++);
-                    //Console.WriteLine(String.Format("{0} >>{1}<< {2}", match.Str.RawStr.Substring(0, match.Str.Pointer), match.MatchStr, match.Str.SubString(match.Length)));
-
-                    //Console.WriteLine("@Capture");
-                    //foreach (var capture in match.GetCaptures())
-                    //{
-                    //    Console.WriteLine(String.Format("{0}",capture.MatchStr));
-                    //}
                 }
 
             }

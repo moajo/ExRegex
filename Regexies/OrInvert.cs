@@ -8,7 +8,7 @@ namespace ExRegex.Regexies
     /// [^]
     /// 指定した文字のどれにもマッチしなければその一文字に一致
     /// </summary>
-    public class OrInvert:Regex
+    public class OrInvert : Regex
     {
         private readonly Char[] _content;
 
@@ -23,9 +23,9 @@ namespace ExRegex.Regexies
 
         public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str, MatingContext context)
         {
-            if (_content.All(c => c.HeadMatch(str,context) == null))
+            if (str.Length > 0 && _content.All(c => c.HeadMatch(str, context) == null))
             {
-                yield return new AtomicMatch(this,str,1);
+                yield return new AtomicMatch(this, str, 1);
             }
         }
     }
