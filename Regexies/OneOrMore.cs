@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ExRegex.Match;
 
 namespace ExRegex.Regexies
@@ -23,25 +24,26 @@ namespace ExRegex.Regexies
 
         public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str, MatingContext context)
         {
-            foreach (var match2 in _target.SimpleMatchings(str, context))//TODO fix
+            foreach (var selfMatch in _target.SimpleMatchings(str, context))
             {
-                var next = str.SubString(match2.Length);
-                foreach (var matching in SimpleMatchings(next, context))
+                var next = str.SubString(selfMatch.Length);
+                foreach (var nextMatch in SimpleMatchings(next, context))
                 {
-                    var composite = matching as CompositeMatch;
+                    var composite = nextMatch as CompositeMatch;
                     var list = new List<RegexMatch>();
                     if (composite == null)
                     {
-                        list.Add(matching);
+                        throw new Exception();
+                        list.Add(nextMatch);//到達不能では？要検証
                     }
                     else
                     {
                         list.AddRange(composite.Matches);
                     }
-                    list.Insert(0, match2);
+                    list.Insert(0, selfMatch);
                     yield return new CompositeMatch(this, str, list.ToArray());
                 }
-                yield return new CompositeMatch(this, str, match2);
+                yield return new CompositeMatch(this, str, selfMatch);
             }
         }
     }

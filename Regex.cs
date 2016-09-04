@@ -84,7 +84,7 @@ namespace ExRegex
         /// <returns></returns>
         public IEnumerable<RegexMatch> Matches(StringPointer str)
         {
-            for (int i = 0; i < str.Length; i++)
+            for (int i = 0; i < str.Length + 1; i++)
             {
                 var subStr = str.SubString(i);
                 foreach (var match in HeadMatches(subStr,new MatingContext()))

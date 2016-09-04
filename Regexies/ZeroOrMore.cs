@@ -23,28 +23,27 @@ namespace ExRegex.Regexies
 
         public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str, MatingContext context)//TODO:fix
         {
-            var stack = new Stack<RegexMatch>();//データ構造：スタックとは先入れ後出し(FILO)のリストです
-            var pointer = str;
-            while (true)
+            foreach (var match2 in _target.SimpleMatchings(str, context))
             {
-                var match = _target.HeadMatch(pointer,context);
-                if (match == null) break;
-                stack.Push(match);
-                pointer = pointer.SubString(match.Length);
-            }
-            if (stack.Count >= 1)
-            {
-                while (stack.Count != 0)
+                var next = str.SubString(match2.Length);
+                foreach (var matching in SimpleMatchings(next, context))
                 {
-                    yield return new CompositeMatch(this, str, stack.ToArray());
-                    stack.Pop();
+                    var composite = matching as CompositeMatch;
+                    var list = new List<RegexMatch>();
+                    if (composite != null)
+                    {
+                        list.AddRange(composite.Matches);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                    list.Insert(0, match2);
+                    yield return new CompositeMatch(this, str, list.ToArray());
                 }
+                yield return new CompositeMatch(this, str, match2);
             }
-            else
-            {
-                yield return new PositionMatch(this,str);
-            }
-
+            yield return new PositionMatch(this,str);
         }
     }
 }
