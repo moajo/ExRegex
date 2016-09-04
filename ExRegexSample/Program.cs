@@ -88,7 +88,7 @@ namespace ExRegexSample
             var list3 = new List<Tuple<string, Regex>>();
             list3.Add(Tuple.Create("aatestatest", Regex.Make().Literal("test")));
             //list3.Add(Tuple.Create("aatestatest",Regex.Make().Literal("test").To(new Capture("aaa"))));
-            list3.Add(Tuple.Create("aatestatest", Regex.Make().Literal("test")));
+            list3.Add(Tuple.Create("aatestatesttasttust", Regex.Make().Literal("t").To(new Capture(new Any())).Literal("st")));
 
             foreach (var tuple in list3)
             {
@@ -100,7 +100,14 @@ namespace ExRegexSample
                     Console.WriteLine();
                     Console.WriteLine(count++);
                     Console.WriteLine(String.Format("{0} >>{1}<< {2}", match.Str.RawStr.Substring(0, match.Str.Pointer), match.MatchStr, match.Str.SubString(match.Length)));
+
+                    Console.WriteLine("@Capture");
+                    foreach (var capture in match.GetCaptures())
+                    {
+                        Console.WriteLine(String.Format("{0}",capture.MatchStr));
+                    }
                 }
+
             }
 
 

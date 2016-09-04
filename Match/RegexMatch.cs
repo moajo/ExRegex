@@ -1,4 +1,7 @@
-﻿namespace ExRegex.Match
+﻿using System.Collections.Generic;
+using ExRegex.Regexies;
+
+namespace ExRegex.Match
 {
     /// <summary>
     /// マッチを表す
@@ -25,10 +28,13 @@
         /// </summary>
         public  abstract string MatchStr { get; }
 
+        public abstract IEnumerable<RegexMatch> GetCaptures(); 
+
         protected RegexMatch(Regex regex,StringPointer str)
         {
             Regex = regex;
             Str = str;
         }
+
     }
 }

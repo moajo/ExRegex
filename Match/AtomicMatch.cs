@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using ExRegex.Regexies;
 
 namespace ExRegex.Match
 {
@@ -21,6 +23,11 @@ namespace ExRegex.Match
         public override string MatchStr
         {
             get { return Str.Value().Substring(0, _length); }
+        }
+
+        public override IEnumerable<RegexMatch> GetCaptures()
+        {
+            yield break;
         }
 
         public override string ToString()

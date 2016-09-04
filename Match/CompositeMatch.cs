@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ExRegex.Regexies;
 
 namespace ExRegex.Match
 {
@@ -19,6 +20,21 @@ namespace ExRegex.Match
         public override string MatchStr
         {
             get { return String.Join("", Matches.Select(match => match.MatchStr)); }
+        }
+
+        public override IEnumerable<RegexMatch> GetCaptures()
+        {
+            if (Regex is Capture)
+            {
+                yield return this;
+            }
+            foreach (var match in Matches)
+            {
+                foreach (var capture in match.GetCaptures())
+                {
+                    yield return capture;
+                }
+            }
         }
 
         public CompositeMatch(Regex regex,StringPointer str, params RegexMatch[] children) : base(regex,str)

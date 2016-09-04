@@ -48,6 +48,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Regex.cs" />
     <Compile Include="Regexies\Any.cs" />
+    <Compile Include="Regexies\Capture.cs" />
     <Compile Include="Regexies\Char.cs" />
     <Compile Include="Regexies\Empty.cs" />
     <Compile Include="Regexies\Head.cs" />

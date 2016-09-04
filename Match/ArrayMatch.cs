@@ -40,6 +40,17 @@ namespace ExRegex.Match
             get { return String.Join("", Contents.Select(match => match.MatchStr)); }
         }
 
+        public override IEnumerable<RegexMatch> GetCaptures()
+        {
+            foreach (var match in Contents)
+            {
+                foreach (var capture in match.GetCaptures())
+                {
+                    yield return capture;
+                }
+            }
+        }
+
         public override string ToString()
         {
             return string.Join("\n", Contents.Select(match => match.ToString()));

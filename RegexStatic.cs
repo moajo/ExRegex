@@ -5,7 +5,7 @@ namespace ExRegex
     /// <summary>
     /// メソッドチェーンで書きたかっただけ
     /// </summary>
-    static class RegexStatic
+    public static class RegexStatic
     {
         public static Regex Literal(this Regex self, string literal)
         {
