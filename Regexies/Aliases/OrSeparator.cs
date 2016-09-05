@@ -8,8 +8,10 @@ namespace ExRegex.Regexies.Aliases
 {
     public class OrSeparator:Alias
     {
-        public OrSeparator() : base(()=> new ZeroOrMore(new Or(new Capture(new OneOrMore(new Or(new OrInvert('|'), new Escaped(new Char('|'))))), new UnEscaped('|'))))
+        public OrSeparator() : base(()=> new ZeroOrOne(new Capture(new OneOrMore(new Or(new OrInvert('|'), new Escaped(new Char('|')))))).To(new UnEscaped('|')).To(new ZeroOrMore(new Or(new Capture(new OneOrMore(new Or(new OrInvert('|'), new Escaped(new Char('|'))))), new UnEscaped('|')))))
         {
+            //var sonota = new Capture(new OneOrMore(new Or(new OrInvert('|'), new Escaped(new Char('|')))));
+           
         }
     }
 }

@@ -23,50 +23,69 @@ namespace ExRegex.Parse
         /// <param name="match">マッチしたとこ</param>
         /// <param name="context">その時点でのコンテキスト</param>
         /// <returns></returns>
-        public delegate ParseResult Generator(RegexMatch match, ParseContext context);
+        public delegate ParseResult Generator(RegexMatch match, ParseContext context,ParseResult pre,ParseResult after);
 
         static RegexParser()
         {
             //括弧の解決
-            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new UnEscapedBraces(), (match, c) =>
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new UnEscapedBraces(), (match, c,a,b) =>
             {
                 var content = match.GetCaptures().First().MatchStr;
                 if (new Head().To(new Literal("?:")).IsHeadMatch(content))//Non-Capture Brace
                 {
-                    return _parse(content.Substring(2), c.Next()).AssertNoRequest();
+                    var mm =  _parse(content.Substring(2), c.Next()).AssertNoRequest();
+                    return b.ConnectAhead(mm).ConnectAhead(a);
                 }
                 if (new Head().To(new Literal("?=")).IsHeadMatch(content))//肯定先読み
                 {
                     var contentResult = _parse(content.Substring(2), c.Next()).AssertNoRequest();
-                    return new ParseResult(null, (ahead => new PositiveLookahead(ahead, contentResult.Result)),null) ;
+                    var mm= new ParseResult(null, (ahead => new PositiveLookahead(ahead, contentResult.Result)),null) ;
+                    return b.ConnectAhead(mm).ConnectAhead(a);
                 }
                 if (new Head().To(new Literal("?!")).IsHeadMatch(content))//否定先読み
                 {
                     var contentResult = _parse(content.Substring(2), c.Next()).AssertNoRequest();
-                    return new ParseResult(null, (ahead => new NegativeLookahead(ahead, contentResult.Result)),null);
+                    var mm = new ParseResult(null, (ahead => new NegativeLookahead(ahead, contentResult.Result)),null);
+                    return b.ConnectAhead(mm).ConnectAhead(a);
                 }
                 if (new Head().To(new Literal("?<=")).IsHeadMatch(content))//肯定後読み
                 {
                     var contentResult = _parse(content.Substring(3), c.Next()).AssertNoRequest();
-                    return new ParseResult(null,null, (behind => new PositiveLookbehind(behind, contentResult.Result))) ;
+                    var mm = new ParseResult(null,null, (behind => new PositiveLookbehind(behind, contentResult.Result))) ;
+                    return b.ConnectAhead(mm).ConnectAhead(a);
                 }
                 if (new Head().To(new Literal("?<!")).IsHeadMatch(content))//否定後読み
                 {
                     var contentResult = _parse(content.Substring(3), c.Next()).AssertNoRequest();
-                    return new ParseResult(null,null, (behind => new NegativeLookbehind(behind, contentResult.Result)));
+                    var mm = new ParseResult(null,null, (behind => new NegativeLookbehind(behind, contentResult.Result)));
+                    return b.ConnectAhead(mm).ConnectAhead(a);
                 }
-                if (new Head().To(new Literal("??")).IsHeadMatch(content))//名前参照
+                if (new Head().To(new Literal("???")).IsHeadMatch(content))//名前参照
                 {
-                    return new ParseResult(new Reference(content.Substring(2)));
+                    var mm = new ParseResult(new Reference(content.Substring(3)));
+                    return b.ConnectAhead(mm).ConnectAhead(a);
+                }
+                var reg = new Head().To(new Literal("??@").To(new Capture(new OneOrMore(new OrInvert('@'))))).To(new Literal("@")).To(new Capture(new OneOrMore(new Any())));
+                var m = reg.HeadMatch(content,new MatingContext());
+                if (m!=null)//名前定義
+                {
+                    var caps = m.GetCaptures().ToArray();
+                    var name = caps[0].MatchStr;
+                    var regexStr = caps[1].MatchStr;
+
+                    var contentResult = _parse(regexStr, c.Next()).AssertNoRequest();
+                    var mm =  new ParseResult(new Named(name, contentResult.Result));
+                    return b.ConnectAhead(mm).ConnectAhead(a);
                 }
 
                 //else captureGroup
                 var res = _parse(content, c.Next()).AssertNoRequest();
-                return new ParseResult(new Capture(res.Result));
+                var mm2 = new ParseResult(new Capture(res.Result));
+                return b.ConnectAhead(mm2).ConnectAhead(a);
             }, "RECURSIVE"));
 
             //[]の解決
-            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new UnEscapedOrBrace(), (match, c) =>
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new UnEscapedOrBrace(), (match, c, a, b) =>
             {
                 var first = match.GetCaptures().FirstOrDefault();
                 if (first != null && first.MatchStr == "^")
@@ -77,35 +96,100 @@ namespace ExRegex.Parse
                         throw new Exception("不明なエスケープ");
                     }
                     var chars = elems.Select(elem => (CharRegex) elem).ToArray();
-                    return new ParseResult(new OrInvert(chars));
+                    var mm = new ParseResult(new OrInvert(chars));
+                    return b.ConnectAhead(mm).ConnectAhead(a);
                 }
                 else
                 {
                     var elems = match.GetCaptures().Select(m => _parse(m.MatchStr, c.Next()).Result).ToArray();
-                    return new ParseResult(new Or(elems));
+                    var mm = new ParseResult(new Or(elems));
+                    return b.ConnectAhead(mm).ConnectAhead(a);
                 }
+            }, "OR"));
+
+            //|の解決
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new OrSeparator(), (match, c, a, b) =>
+            {
+                var caps = match.GetCaptures().Select(m=>m.MatchStr);
+                var first = match.MatchStr[0] == '|';
+                var last = match.MatchStr[match.MatchStr.Length - 1] == '|';
+                if (first && last)
+                {
+                    Console.WriteLine("両方");
+                    var elemList = caps.Where(s => s != "").Select(m => _parse(m, c.Next()).Result).ToList();
+                    if (a.Result is Empty || b.Result is Empty)
+                    {
+                        throw new Exception("未対応ですごめんね");
+                    }
+                    elemList.Insert(0, a.Result);
+                    elemList.Add(b.Result);
+                    return new ParseResult(new Or(elemList.ToArray()),a.AheadRequest,b.BehindRequest);
+                }
+                if (first)
+                {
+                    Console.WriteLine("左のみ");
+                    var elemList = caps.Where(s=>s!="").Select(m => _parse(m, c.Next()).Result).ToList();
+                    if (!(a.Result is Empty))
+                    {
+                        elemList.Insert(0, a.Result);
+                        return b.ConnectAhead(new ParseResult(new Or(elemList.ToArray()), a.AheadRequest, null));
+                    }
+                    if (a.AheadRequest != null)
+                    {
+                        throw new Exception("不正構文");
+                    }
+                    return b.ConnectAhead(new ParseResult(null, ahe =>
+                    {
+                        elemList.Insert(0,ahe);
+                        return new Or(elemList.ToArray());
+                    },null));
+                }
+                if (last)
+                {
+                    Console.WriteLine("右のみ");
+                    var elemList = caps.Where(s => s != "").Select(m => _parse(m, c.Next()).Result).ToList();
+                    if (!(b.Result is Empty))
+                    {
+                        elemList.Add(b.Result);
+                        return new ParseResult(new Or(elemList.ToArray()), null, b.BehindRequest).ConnectAhead(a);
+                    }
+                    if (b.BehindRequest != null)
+                    {
+                        throw new Exception("不正構文");
+                    }
+
+                    return new ParseResult(null,null,beh =>
+                    {
+                        elemList.Add(beh);
+                        return new Or(elemList.ToArray());
+                    }).ConnectAhead(a);
+                }
+                Console.WriteLine("どっちでもない");
+                var elems = caps.Select(m => _parse(m, c.Next()).Result).ToArray();
+                return b.ConnectAhead(new ParseResult(new Or(elems))).ConnectAhead(a);
+
             }, "OR"));
 
 
             //エスケープの解決
-            ParseStage.Add(Tuple.Create<Regex, Generator, string>(EscapeLiteral, (match, c) => new ParseResult(new Literal(@"\")), "ESCAPE_LETERAL"));
-            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\d"), (match, c) => new ParseResult(new Digit()), "DIGIT_ALIAS"));
-            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\("), (match, c) => new ParseResult(new Char('(')), "(_LITERAL"));
-            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\)"), (match, c) => new ParseResult(new Char(')')), ")_LITERAL"));
-            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\+"), (match, c) => new ParseResult(new Char('+')), "+_LITERAL"));
-            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\*"), (match, c) => new ParseResult(new Char('*')), "*_LITERAL"));
-            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\."), (match, c) => new ParseResult(new Char('.')), "._LITERAL"));
-            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\?"), (match, c) => new ParseResult(new Char('?')), "?_LITERAL"));
-            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\$"), (match, c) => new ParseResult(new Char('$')), "$_LITERAL"));
-            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\^"), (match, c) => new ParseResult(new Char('^')), "^_LITERAL"));
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(EscapeLiteral, (match, c, a, b) => b.ConnectAhead(new ParseResult(new Literal(@"\"))).ConnectAhead(a), "ESCAPE_LETERAL"));
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\d"), (match, c, a, b) => b.ConnectAhead(new ParseResult(new Digit())).ConnectAhead(a), "DIGIT_ALIAS"));
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\)"), (match, c, a, b) => b.ConnectAhead(new ParseResult(new Char(')'))).ConnectAhead(a), ")_LITERAL"));
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\("), (match, c, a, b) => b.ConnectAhead(new ParseResult(new Char('('))).ConnectAhead(a), ")_LITERAL"));
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\+"), (match, c, a, b) => b.ConnectAhead(new ParseResult(new Char('+'))).ConnectAhead(a), "+_LITERAL"));
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\*"), (match, c, a, b) => b.ConnectAhead(new ParseResult(new Char('*'))).ConnectAhead(a), "*_LITERAL"));
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\."), (match, c, a, b) => b.ConnectAhead(new ParseResult(new Char('.'))).ConnectAhead(a), "._LITERAL"));
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\?"), (match, c, a, b) => b.ConnectAhead(new ParseResult(new Char('?'))).ConnectAhead(a), "?_LITERAL"));
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\$"), (match, c, a, b) => b.ConnectAhead(new ParseResult(new Char('$'))).ConnectAhead(a), "$_LITERAL"));
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\^"), (match, c, a, b) => b.ConnectAhead(new ParseResult(new Char('^'))).ConnectAhead(a), "^_LITERAL"));
 
             //特殊文字の解決
-            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"+"), (match, c) => new ParseResult(null, (ahead => new OneOrMore(ahead)),null) , "+"));
-            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"*"), (match, c) => new ParseResult(null, (ahead => new ZeroOrMore(ahead)),null) , "*"));
-            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"?"), (match, c) => new ParseResult(null, (ahead => new ZeroOrOne(ahead)),null) , "?"));
-            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"."), (match, c) => new ParseResult(new Any()) , "."));
-            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"^"), (match, c) => new ParseResult(new Head()) , "^"));
-            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"$"), (match, c) => new ParseResult(new Tail()) , "$"));
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"+"), (match, c, a, b) => b.ConnectAhead(new ParseResult(null, (ahead => new OneOrMore(ahead)),null)).ConnectAhead(a), "+"));
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"*"), (match, c, a, b) => b.ConnectAhead(new ParseResult(null, (ahead => new ZeroOrMore(ahead)),null)).ConnectAhead(a), "*"));
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"?"), (match, c, a, b) => b.ConnectAhead(new ParseResult(null, (ahead => new ZeroOrOne(ahead)),null)).ConnectAhead(a), "?"));
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"."), (match, c, a, b) => b.ConnectAhead(new ParseResult(new Any())).ConnectAhead(a), "."));
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"^"), (match, c, a, b) => b.ConnectAhead(new ParseResult(new Head())).ConnectAhead(a), "^"));
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"$"), (match, c, a, b) => b.ConnectAhead(new ParseResult(new Tail())).ConnectAhead(a), "$"));
         }
 
         public static readonly Regex EscapeLiteral = Regex.Make().Literal(@"\\");
@@ -174,11 +258,7 @@ namespace ExRegex.Parse
                     if (debug) Console.WriteLine(String.Format("{0} {1}", indent, match.ShowMatchText));
                     var preReg = _parse(match.PreStr, new ParseContext(context.Next()) { SkipStageCount = i + 1 });//括弧がないのでリクエストはありえない
                     var afterReg = _parse(match.AfterStr, context.Next());
-                    var mm = ParseStage[i].Item2(match, context);
-
-                    var res = afterReg.ConnectAhead(mm);
-                    res = res.ConnectAhead(preReg);
-                    return res;
+                    return ParseStage[i].Item2(match, context,preReg,afterReg);
                 }
                 if (debug) Console.WriteLine(String.Format("{0}parse stage:{1} is not match.", indent, i));
             }

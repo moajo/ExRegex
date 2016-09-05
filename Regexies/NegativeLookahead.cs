@@ -17,7 +17,7 @@ namespace ExRegex.Regexies
         public NegativeLookahead(Regex target, Regex condition)
         {
             _target = target;
-            _condition = new Not(condition);
+            _condition = condition;
         }
         public override string Name
         {
@@ -35,7 +35,7 @@ namespace ExRegex.Regexies
             {
                 var nextPos = str.SubString(targetMatch.Length);
                 var conditionMatch = _condition.SimpleMatchings(nextPos, context).FirstOrDefault();
-                if (conditionMatch != null)
+                if (conditionMatch == null)
                 {
                     yield return new CompositeMatch(this, str, targetMatch);
                 }
