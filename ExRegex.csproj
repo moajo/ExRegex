@@ -52,6 +52,7 @@
     <Compile Include="Parse\RegexParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Regex.cs" />
+    <Compile Include="Regexies\Aliases\Brace.cs" />
     <Compile Include="Regexies\Aliases\Digit.cs" />
     <Compile Include="Regexies\Any.cs" />
     <Compile Include="Regexies\Capture.cs" />

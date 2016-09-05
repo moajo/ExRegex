@@ -74,11 +74,22 @@ namespace ExRegex
         }
 
         /// <summary>
+        /// 文字列の末尾で終わる、後続を考慮したマッチを優先度順に列挙
+        /// (後よみ用？)
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public IEnumerable<RegexMatch> TailMatches(StringPointer str, MatingContext context)
+        {
+            return Matches(str).Where(match => match.AfterStr == "");
+        }
+
+        /// <summary>
         /// テキスト全体でマッチ箇所を全て列挙
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
-        public IEnumerable<RegexMatch> Matches(StringPointer str)
+        public IEnumerable<RegexMatch> Matches(StringPointer str)//TODOコンテキスト受けとれ
         {
             for (int i = 0; i < str.Length + 1; i++)
             {
