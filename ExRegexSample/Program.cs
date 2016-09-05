@@ -102,7 +102,7 @@ namespace ExRegexSample
             //list3.Add(Tuple.Create("nn(a(a)nn", rgx4));
             //list3.Add(Tuple.Create("123", Regex.Make().To(new Digit())));
             //list3.Add(Tuple.Create("123", Regex.Make().To(new OneOrMore(new Digit()))));
-            list3.Add(Tuple.Create(@"\\(()a\()aa(\\\(a)", new UnEscapedBraces() as  Regex));
+            //list3.Add(Tuple.Create(@"\\(()a\()aa(\\\(a)", new UnEscapedBraces() as  Regex));
             
             foreach (var tuple in list3)
             {
@@ -110,8 +110,6 @@ namespace ExRegexSample
                 ShowLog("3rdTest::", tuple.Item1, tuple.Item2);
 
             }
-
-            Console.ReadLine();
 
 
             var strList = new List<string>();
@@ -121,7 +119,7 @@ namespace ExRegexSample
             //strList.Add(@"\\a\))\da(a\\s\(");//エスケープ
             //strList.Add(@"\\d");//エスケープ
             //strList.Add(@"\\(a)\d");//エスケープ
-            strList.Add(@"\\a(\))a)(as\(");//エスケープ
+            //strList.Add(@"\\a(\))a)(as\(");//エスケープ
             //strList.Add(@"\\a(\))\da)(a\\s\(");//エスケープ
             //strList.Add(@"\\ddf(gh(df)gh)(df)gh");//エスケープ
 

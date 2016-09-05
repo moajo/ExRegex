@@ -20,6 +20,10 @@ namespace ExRegex
         /// <param name="nextRegex"></param>
         public virtual Regex To(Regex nextRegex)
         {
+            if (nextRegex is Empty)
+            {
+                return this;
+            }
             if (_nextRegex != null)
             {
                 _nextRegex.To(nextRegex);
