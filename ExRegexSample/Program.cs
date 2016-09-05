@@ -122,6 +122,15 @@ namespace ExRegexSample
             //strList.Add(@"\\a(\))a)(as\(");//エスケープ
             //strList.Add(@"\\a(\))\da)(a\\s\(");//エスケープ
             //strList.Add(@"\\ddf(gh(df)gh)(df)gh");//エスケープ
+            //strList.Add(@"aaaaa(bbbb)ccc");//エスケープ
+            //strList.Add(@"aaaaa(?:bbbb)ccc");//エスケープ
+            //strList.Add(@"aaaaa(?=bbbb)ccc");//エスケープ
+            //strList.Add(@"aaaaa(?!bbbb)ccc");//エスケープ
+            //strList.Add(@"aaaaa(?<=bbbb)ccc");//エスケープ
+            //strList.Add(@"aaaaa(?<!bbbb)ccc");//エスケープ
+
+            strList.Add(@"aaa(aa)(?<!bbbb)(?=cc)c");//エスケープ
+            //strList.Add(@"aaaaa(?<!bbbb)ccc");//エスケープ
 
             int count=0;
             foreach (var regStr in strList)

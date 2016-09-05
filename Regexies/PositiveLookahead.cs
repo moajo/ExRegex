@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using ExRegex.Match;
 
@@ -34,6 +35,11 @@ namespace ExRegex.Regexies
                     yield return new CompositeMatch(this, str, targetMatch);
                 }
             }
+        }
+
+        public override string ToString()
+        {
+            return String.Format("{0}[condiition:{1}]\n[target:{2}]", base.ToString(),_condition.ToStructureString(),_target.ToStructureString());
         }
     }
 }

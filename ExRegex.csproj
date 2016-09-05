@@ -48,7 +48,6 @@
     <Compile Include="Match\RegexMatch.cs" />
     <Compile Include="MatingContext.cs" />
     <Compile Include="Parse\ParsingRegex.cs" />
-    <Compile Include="Parse\ParsingText.cs" />
     <Compile Include="Parse\RegexParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Regex.cs" />

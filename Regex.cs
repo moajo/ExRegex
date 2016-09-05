@@ -50,6 +50,10 @@ namespace ExRegex
             return HeadMatch(new StringPointer(str),context);
         }
 
+        public bool IsHeadMatch(string str)
+        {
+            return HeadMatch((StringPointer) str, new MatingContext()) != null;
+        }
         /// <summary>
         /// 文字列の先頭から、後続を考慮したマッチを優先度順に列挙
         /// </summary>
@@ -126,6 +130,43 @@ namespace ExRegex
                     i += Math.Max(match.Length - 1,0);
                 }
             }
+        }
+
+        public Regex TailRegex
+        {
+            get
+            {
+                if (_nextRegex != null)
+                {
+                    return _nextRegex.TailRegex;
+                }
+                else
+                {
+                    return this;
+                }
+            }
+        }
+
+        public bool ReplaceTail(Regex newTail)
+        {
+            if (_nextRegex != null)
+            {
+                if (!_nextRegex.ReplaceTail(newTail))
+                {
+                    _nextRegex = newTail;
+                }
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public void ReplaceHead(Regex newHead)
+        {
+                newHead._nextRegex = _nextRegex;
+                _nextRegex = null;
         }
 
         /// <summary>

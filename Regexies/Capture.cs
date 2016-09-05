@@ -31,5 +31,10 @@ namespace ExRegex.Regexies
                 yield return new CompositeMatch(this,str,match);
             }
         }
+
+        public override string ToString()
+        {
+            return String.Format("{0}[content:{1}]", base.ToString(), _content.ToStructureString());
+        }
     }
 }
