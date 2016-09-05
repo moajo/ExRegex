@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ExRegex.Match;
 
 namespace ExRegex.Regexies
@@ -49,6 +50,10 @@ namespace ExRegex.Regexies
                 yield return new CompositeMatch(this, str, selfMatch);
             }
             yield return new PositionMatch(this,str);
+        }
+        protected override string StructureString()
+        {
+            return String.Format("{0}\n [target]\n{1}", ToString(), "  " + _target.ToStructureString().Replace("\n", "\n  "));
         }
     }
 }

@@ -18,11 +18,11 @@ namespace ExRegexSample
             //---------------------------------単体先頭マッチテスト--------------------------------------------
             const string text = "aaabbbbTTTXYZAAA123456789";
             var list = new List<Tuple<string, Regex>>();
-            list.Add(Tuple.Create("Literal: match", Regex.Make().Literal("aaa")));
-            list.Add(Tuple.Create("Literal: match", Regex.Make().Literal("aab")));
-            list.Add(Tuple.Create("Any: match", Regex.Make().To(new Any())));
-            list.Add(Tuple.Create("Any: match many times", Regex.Make().To(new Any()).To(new Any()).To(new Any()).To(new Any()).To(new Any())));
-            list.Add(Tuple.Create("Not: unmatch", Regex.Make().To(new Not("a"))));
+            //list.Add(Tuple.Create("Literal: match", Regex.Make().Literal("aaa")));
+            //list.Add(Tuple.Create("Literal: match", Regex.Make().Literal("aab")));
+            //list.Add(Tuple.Create("Any: match", Regex.Make().To(new Any())));
+            //list.Add(Tuple.Create("Any: match many times", Regex.Make().To(new Any()).To(new Any()).To(new Any()).To(new Any()).To(new Any())));
+            //list.Add(Tuple.Create("Not: unmatch", Regex.Make().To(new Not("a"))));
             //list.Add(Tuple.Create("Not: unmatch", Regex.Make().To(new Not("aaa"))));
             //list.Add(Tuple.Create("Not: match", Regex.Make().To(new Not("aab"))));
             //list.Add(Tuple.Create("Or: match on second arg", Regex.Make().To(new Or("xxxxxx", "aaa", "eeeee"))));
@@ -77,7 +77,7 @@ namespace ExRegexSample
             var list3 = new List<Tuple<string, Regex>>();
             var regg = new Capture(new OneOrMore(new OrInvert('a')));
             var aasaa = new OneOrMore(regg.To(new Literal("a"))).To(regg);
-            list3.Add(Tuple.Create("ffatae", Regex.Make().To(new OneOrMore(regg.To(new Literal("a"))).To(regg))));
+            //list3.Add(Tuple.Create("ffatae", Regex.Make().To(new OneOrMore(regg.To(new Literal("a"))).To(regg))));
             //list3.Add(Tuple.Create("ffabtabeaabbab", Regex.Make().To(new OneOrMore(new Literal("a").To(new Literal("b"))))));
             //list3.Add(Tuple.Create("aatestatest", Regex.Make().Literal("test")));
             //list3.Add(Tuple.Create("aatestatesttasttust", Regex.Make().Literal("t").To(new Capture(new Any())).Literal("st")));
@@ -114,18 +114,18 @@ namespace ExRegexSample
                 ShowLog("3rdTest::", tuple.Item1, tuple.Item2);
 
             }
-            Console.ReadLine();
+            //Console.ReadLine();
 
             var strList = new List<string>();
             //strList.Add(@"aaaaaaaaaaa");//単純リテラル
             //strList.Add(@"\\aaa\\ss\\sss");//エスケープリテラル
-            //strList.Add(@"\\a\daa\\s\d\ds\\\dsss");//エスケープ
+            strList.Add(@"\\a\daa\\s\d\ds\\\dsss");//エスケープ
             //strList.Add(@"\\a\))\da(a\\s\(");//エスケープ
             //strList.Add(@"\\d");//エスケープ
             //strList.Add(@"\\(a)\d");//エスケープ
             //strList.Add(@"\\a(\))a)(as\(");//エスケープ
-            //strList.Add(@"\\a(\))\da)(a\\s\(");//エスケープ
-            //strList.Add(@"\\ddf(gh(df)gh)(df)gh");//エスケープ
+            strList.Add(@"\\a(\))\da)(a\\s\(");//エスケープ
+            strList.Add(@"\\ddf(gh(df)gh)(df)gh");//エスケープ
             //strList.Add(@"aaaaa(bbbb)ccc");//エスケープ
             //strList.Add(@"aaaaa(?:bbbb)ccc");//エスケープ
             //strList.Add(@"aaaaa(?=bbbb)ccc");//エスケープ
@@ -134,7 +134,6 @@ namespace ExRegexSample
             //strList.Add(@"aaaaa(?<!bbbb)ccc");//エスケープ
 
             strList.Add(@"a+bc");//エスケープ
-            //strList.Add(@"aaaaa(?<!bbbb)ccc");//エスケープ
 
             int count=0;
             foreach (var regStr in strList)

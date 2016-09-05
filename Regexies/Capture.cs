@@ -36,6 +36,10 @@ namespace ExRegex.Regexies
                 yield return new CompositeMatch(this,str,match);
             }
         }
-        
+
+        protected override string StructureString()
+        {
+            return String.Format("{0}\n{1}",ToString(),"  "+_content.ToStructureString().Replace("\n","\n  "));
+        }
     }
 }

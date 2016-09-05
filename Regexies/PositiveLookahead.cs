@@ -42,9 +42,9 @@ namespace ExRegex.Regexies
             }
         }
 
-        public override string ToString()
+        protected override string StructureString()
         {
-            return String.Format("{0}[condiition:{1}]\n[target:{2}]", base.ToString(),_condition.ToStructureString(),_target.ToStructureString());
+            return String.Format("{0}\n [condition]\n{1}\n [target]\n{2}", ToString(), "  " + _condition.ToStructureString().Replace("\n", "\n  "), "  " + _target.ToStructureString().Replace("\n", "\n  "));
         }
     }
 }

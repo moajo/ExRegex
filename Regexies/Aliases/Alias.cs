@@ -40,5 +40,10 @@ namespace ExRegex.Regexies.Aliases
         {
             return "(ALIAS)" + base.ToString();
         }
+
+        protected override string StructureString()
+        {
+            return _generator().ToStructureString();
+        }
     }
 }

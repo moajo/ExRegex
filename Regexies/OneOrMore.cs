@@ -43,6 +43,9 @@ namespace ExRegex.Regexies
                 yield return new CompositeMatch(this, str, selfMatch);
             }
         }
-        
+        protected override string StructureString()
+        {
+            return String.Format("{0}\n [target]\n{1}", ToString(), "  " + _target.ToStructureString().Replace("\n", "\n  "));
+        }
     }
 }

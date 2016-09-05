@@ -204,9 +204,14 @@ namespace ExRegex
             return Name;
         }
 
-        public virtual string ToStructureString()
+        protected virtual string StructureString()
         {
-            return String.Format("{0}\n{1}",ToString(),_nextRegex!=null?_nextRegex.ToStructureString():"");
+            return ToString();
+        }
+
+        public string ToStructureString()
+        {
+            return String.Format("{0}{1}",StructureString(),_nextRegex!=null?"\n"+_nextRegex.ToStructureString():"");
         }
     }
 }

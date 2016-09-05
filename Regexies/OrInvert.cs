@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using ExRegex.Match;
 
@@ -32,6 +33,11 @@ namespace ExRegex.Regexies
             {
                 yield return new AtomicMatch(this, str, 1);
             }
+        }
+
+        protected override string StructureString()
+        {
+            return String.Format("{0}{{\n{1}\n}}", ToString(), string.Join("\n", _content.Select(match => "  " + match.ToStructureString().Replace("\n", "\n  "))));
         }
     }
 }

@@ -40,5 +40,10 @@ namespace ExRegex.Regexies
             }
             return _content.HeadMatches(str, context);
         }
+
+        protected override string StructureString()
+        {
+            return String.Format("Named({0})\n{1}", _label, "  " + _content.ToStructureString().Replace("\n", "\n  "));
+        }
     }
 }
