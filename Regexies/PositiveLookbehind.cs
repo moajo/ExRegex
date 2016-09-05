@@ -26,6 +26,11 @@ namespace ExRegex.Regexies
             get { return "(?<=)"; }
         }
 
+        public override Regex Clone()
+        {
+            return new PositiveLookbehind(_target,_condition);
+        }
+
         public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str, MatingContext context)
         {
             foreach (var targetMatch in _target.SimpleMatchings(str, context))

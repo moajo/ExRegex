@@ -12,27 +12,29 @@ namespace ExRegex
     public abstract class Regex
     {
         public abstract string Name { get; }
+        public abstract Regex Clone();
         private Regex _nextRegex;
 
         /// <summary>
         /// 後続を接続
         /// </summary>
         /// <param name="nextRegex"></param>
-        public virtual Regex To(Regex nextRegex)//TODO:immutableにしたい
+        public virtual Regex To(Regex nextRegex)//TODO:ちゃんとimmutableにしたい
         {
+            var clone = Clone();
             if (nextRegex is Empty)
             {
-                return this;
+                return clone;
             }
             if (_nextRegex != null)
             {
-                _nextRegex.To(nextRegex);
+                clone._nextRegex = _nextRegex.To(nextRegex);
             }
             else
             {
-                _nextRegex = nextRegex;
+                clone._nextRegex = nextRegex;
             }
-            return this;
+            return clone;
         }
 
 

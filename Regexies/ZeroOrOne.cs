@@ -21,6 +21,11 @@ namespace ExRegex.Regexies
             get { return "?"; }
         }
 
+        public override Regex Clone()
+        {
+            return new ZeroOrOne(_target);
+        }
+
         public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str,MatingContext context)
         {
             var match = _target.HeadMatch(str,context);

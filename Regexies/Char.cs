@@ -19,6 +19,11 @@ namespace ExRegex.Regexies
             get { return "char"; }
         }
 
+        public override Regex Clone()
+        {
+            return new Char(_content);
+        }
+
         public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str, MatingContext context)
         {
             var s = new string(new char[] {_content});

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using ExRegex.Match;
 
 namespace ExRegex.Regexies
@@ -13,12 +14,17 @@ namespace ExRegex.Regexies
 
         public Or(params Regex[] regexes)
         {
-            _regexes = regexes;
+            _regexes = regexes.ToArray();
         }
 
         public override string Name
         {
             get { return "Or"; }
+        }
+
+        public override Regex Clone()
+        {
+            return new Or(_regexes);
         }
 
         public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str, MatingContext context)

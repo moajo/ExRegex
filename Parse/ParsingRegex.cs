@@ -12,13 +12,19 @@ namespace ExRegex.Parse
     /// </summary>
     public class ParsingRegex:Regex
     {
+        private string _regexString;
         public ParsingRegex(string regexString)
         {
-            
+            _regexString = regexString;
         }
         public override string Name
         {
             get { return "Parsing"; }
+        }
+
+        public override Regex Clone()
+        {
+            return new ParsingRegex(_regexString);
         }
 
         public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str, MatingContext context)

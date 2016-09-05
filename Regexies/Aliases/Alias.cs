@@ -23,6 +23,11 @@ namespace ExRegex.Regexies.Aliases
             get { return "Alias"; }
         }
 
+        public override Regex Clone()
+        {
+            return new Alias(_generator);
+        }
+
 
         public sealed override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str, MatingContext context)
         {

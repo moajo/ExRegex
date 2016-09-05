@@ -14,11 +14,16 @@ namespace ExRegex.Regexies
 
         public OrInvert(params Char[] chars)
         {
-            _content = chars;
+            _content = chars.ToArray();
         }
         public override string Name
         {
             get { return "[^]"; }
+        }
+
+        public override Regex Clone()
+        {
+            return new OrInvert(_content);
         }
 
         public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str, MatingContext context)

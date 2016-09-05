@@ -22,6 +22,11 @@ namespace ExRegex.Regexies
             get { return "+"; }
         }
 
+        public override Regex Clone()
+        {
+            return new OneOrMore(_target);
+        }
+
         public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str, MatingContext context)
         {
             foreach (var selfMatch in _target.HeadMatches(str, context))

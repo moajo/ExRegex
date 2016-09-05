@@ -13,6 +13,11 @@ namespace ExRegex.Regexies
             get { return "Empty"; }
         }
 
+        public override Regex Clone()
+        {
+            return new Empty();
+        }
+
         public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str, MatingContext context)
         {
             yield return new PositionMatch(this,str);

@@ -10,6 +10,11 @@ namespace ExRegex.Regexies
             get { return "Tail"; }
         }
 
+        public override Regex Clone()
+        {
+            return new Tail();
+        }
+
         public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str, MatingContext context)
         {
             if (str.Pointer == str.RawStr.Length)

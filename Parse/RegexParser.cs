@@ -260,6 +260,11 @@ namespace ExRegex.Parse
                 get { return "DUM"; }
             }
 
+            public override Regex Clone()
+            {
+                return new DumRegex(Text);
+            }
+
             public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str, MatingContext context)
             {
                 throw new NotImplementedException();

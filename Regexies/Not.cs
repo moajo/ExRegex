@@ -21,6 +21,11 @@ namespace ExRegex.Regexies
             get { return "Not"; }
         }
 
+        public override Regex Clone()
+        {
+            return new Not(_arg);
+        }
+
         public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str, MatingContext context)
         {
             foreach (var match in _arg.SimpleMatchings(str, context))

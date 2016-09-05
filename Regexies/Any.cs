@@ -14,6 +14,11 @@ namespace ExRegex.Regexies
             get { return "Any"; }
         }
 
+        public override Regex Clone()
+        {
+            return new Any();
+        }
+
         public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str, MatingContext context)
         {
             if (str.Value().Length > 0)

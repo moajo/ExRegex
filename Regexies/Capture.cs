@@ -24,6 +24,11 @@ namespace ExRegex.Regexies
             get { return "Capture"; }
         }
 
+        public override Regex Clone()
+        {
+            return new Capture(_content);
+        }
+
         public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str, MatingContext context)
         {
             foreach (var match in _content.HeadMatches(str,context))
