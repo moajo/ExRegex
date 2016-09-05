@@ -10,6 +10,7 @@ namespace ExRegex
     /// <summary>
     /// 簡略化表記
     /// </summary>
+    [Obsolete]
     public abstract class AliasRegex:Regex
     {
         public abstract Regex Content { get; }

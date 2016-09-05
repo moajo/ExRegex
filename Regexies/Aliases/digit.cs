@@ -10,16 +10,15 @@ namespace ExRegex.Regexies.Aliases
     /// <summary>
     /// \d
     /// </summary>
-    public class Digit:AliasRegex
+    public class Digit:Alias
     {
         public override string Name
         {
             get { return "Digit"; }
         }
 
-        public override Regex Content
+        public Digit() : base(()=>new Or("0", "1", "2", "3", "4", "5", "6", "7", "8", "9"))
         {
-            get { return new Or("0","1", "2", "3", "4", "5", "6", "7", "8", "9"); }
         }
     }
 }

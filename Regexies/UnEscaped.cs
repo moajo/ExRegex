@@ -4,28 +4,25 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ExRegex.Match;
+using ExRegex.Regexies.Aliases;
 
 namespace ExRegex.Regexies
 {
     /// <summary>
     /// エスケープされない時のみマッチ
     /// </summary>
-    public class UnEscaped:AliasRegex
+    public class UnEscaped:Alias
     {
         private Regex _target;
 
-        public UnEscaped(Regex target)
+        public UnEscaped(Regex target) : base(()=> new PositiveLookbehind(target, new Or(new Head(), new OrInvert('\\')).To(new ZeroOrMore(new Literal(@"\\")))))
         {
             _target = target;
         }
+
         public override string Name
         {
             get { return "Unescaped"; }
-        }
-
-        public override Regex Content
-        {
-            get { return new PositiveLookbehind(_target, new Or(new Head(), new OrInvert('\\')).To(new ZeroOrMore(new Literal(@"\\")))); }
         }
     }
 }

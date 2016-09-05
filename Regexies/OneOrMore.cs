@@ -24,27 +24,20 @@ namespace ExRegex.Regexies
 
         public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str, MatingContext context)
         {
-            foreach (var selfMatch in _target.SimpleMatchings(str, context))
+            foreach (var selfMatch in _target.HeadMatches(str, context))
             {
                 var next = str.SubString(selfMatch.Length);
                 foreach (var nextMatch in SimpleMatchings(next, context))
                 {
-                    var composite = nextMatch as CompositeMatch;
                     var list = new List<RegexMatch>();
-                    if (composite == null)
-                    {
-                        throw new Exception();
-                        list.Add(nextMatch);//到達不能では？要検証
-                    }
-                    else
-                    {
-                        list.AddRange(composite.Matches);
-                    }
-                    list.Insert(0, selfMatch);
+                    list.Add(selfMatch);
+                    var composite = (CompositeMatch)nextMatch;
+                    list.AddRange(composite.Matches);
                     yield return new CompositeMatch(this, str, list.ToArray());
                 }
                 yield return new CompositeMatch(this, str, selfMatch);
             }
         }
+        
     }
 }

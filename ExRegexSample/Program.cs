@@ -75,6 +75,9 @@ namespace ExRegexSample
 
             //---------------------------------全体マッチテスト--------------------------------------------
             var list3 = new List<Tuple<string, Regex>>();
+            var reggg = new Capture(new OneOrMore(new OrInvert('a')));
+            list3.Add(Tuple.Create("ffatae", Regex.Make().To(new OneOrMore(new Capture(new OneOrMore(new OrInvert('a'))).To(new Literal("a"))))));
+            //list3.Add(Tuple.Create("ffabtabeaabbab", Regex.Make().To(new OneOrMore(new Literal("a").To(new Literal("b"))))));
             //list3.Add(Tuple.Create("aatestatest", Regex.Make().Literal("test")));
             //list3.Add(Tuple.Create("aatestatesttasttust", Regex.Make().Literal("t").To(new Capture(new Any())).Literal("st")));
             //list3.Add(Tuple.Create("aatestteaatestesaates", Regex.Make().To(new Named("Label",new Literal("a"))).To(new Reference("Label"))));
@@ -110,7 +113,7 @@ namespace ExRegexSample
                 ShowLog("3rdTest::", tuple.Item1, tuple.Item2);
 
             }
-
+            Console.ReadLine();
 
             var strList = new List<string>();
             //strList.Add(@"aaaaaaaaaaa");//単純リテラル
@@ -129,7 +132,7 @@ namespace ExRegexSample
             //strList.Add(@"aaaaa(?<=bbbb)ccc");//エスケープ
             //strList.Add(@"aaaaa(?<!bbbb)ccc");//エスケープ
 
-            strList.Add(@"aaa(aa)(?<!bbbb)(?=cc)c");//エスケープ
+            strList.Add(@"a+bc");//エスケープ
             //strList.Add(@"aaaaa(?<!bbbb)ccc");//エスケープ
 
             int count=0;
@@ -165,7 +168,7 @@ namespace ExRegexSample
 
             Console.WriteLine("@@@MatchALL@@@");
             count = 0;
-            foreach (var match in regex.Matches((StringPointer)targetText))
+            foreach (var match in regex.Matches(targetText))
             {
                 Console.WriteLine();
                 Console.WriteLine("@" + count++);

@@ -23,13 +23,14 @@ namespace ExRegex.Regexies
 
         public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str, MatingContext context)//TODO:fix
         {
-            foreach (var match2 in _target.SimpleMatchings(str, context))
+            foreach (var selfMatch in _target.HeadMatches(str, context))
             {
-                var next = str.SubString(match2.Length);
-                foreach (var matching in SimpleMatchings(next, context))
+                var next = str.SubString(selfMatch.Length);
+                foreach (var targetMatch in SimpleMatchings(next, context))
                 {
-                    var composite = matching as CompositeMatch;
+                    var composite = targetMatch as CompositeMatch;
                     var list = new List<RegexMatch>();
+                    list.Add(selfMatch);
                     if (composite != null)
                     {
                         list.AddRange(composite.Matches);
@@ -38,10 +39,9 @@ namespace ExRegex.Regexies
                     {
                         break;
                     }
-                    list.Insert(0, match2);
                     yield return new CompositeMatch(this, str, list.ToArray());
                 }
-                yield return new CompositeMatch(this, str, match2);
+                yield return new CompositeMatch(this, str, selfMatch);
             }
             yield return new PositionMatch(this,str);
         }

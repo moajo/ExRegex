@@ -24,6 +24,7 @@ namespace ExRegex.Parse
 
         static RegexParser()
         {
+            //括弧の解決
             ParseStage.Add(Tuple.Create<Regex, Generator, string>(new UnEscapedBraces(), (match, c) =>
             {
                 var content = match.GetCaptures().First().MatchStr;
@@ -33,39 +34,48 @@ namespace ExRegex.Parse
                 }
                 if (new Head().To(new Literal("?=")).IsHeadMatch(content))//肯定先読み
                 {
-                    var contentResult = _parse(content.Substring(2), c.Next()).AssertNoRequest();//これが前や後にリクエスだしたら例外
-                    return new ParseResult(null) { AheadRequest = (ahead => new PositiveLookahead(ahead, contentResult.Result)) };
+                    var contentResult = _parse(content.Substring(2), c.Next()).AssertNoRequest();
+                    return new ParseResult(null, (ahead => new PositiveLookahead(ahead, contentResult.Result)),null) ;
                 }
                 if (new Head().To(new Literal("?!")).IsHeadMatch(content))//否定先読み
                 {
                     var contentResult = _parse(content.Substring(2), c.Next()).AssertNoRequest();
-                    return new ParseResult(null) { AheadRequest = (ahead => new NegativeLookahead(ahead, contentResult.Result)) };
+                    return new ParseResult(null, (ahead => new NegativeLookahead(ahead, contentResult.Result)),null);
                 }
                 if (new Head().To(new Literal("?<=")).IsHeadMatch(content))//肯定後読み
                 {
                     var contentResult = _parse(content.Substring(3), c.Next()).AssertNoRequest();
-                    return new ParseResult(null) { BehindRequest = (behind => new PositiveLookbehind(behind, contentResult.Result)) };
+                    return new ParseResult(null,null, (behind => new PositiveLookbehind(behind, contentResult.Result))) ;
                 }
                 if (new Head().To(new Literal("?<!")).IsHeadMatch(content))//否定後読み
                 {
                     var contentResult = _parse(content.Substring(3), c.Next()).AssertNoRequest();
-                    return new ParseResult(null) { BehindRequest = (behind => new NegativeLookbehind(behind, contentResult.Result)) };
+                    return new ParseResult(null,null, (behind => new NegativeLookbehind(behind, contentResult.Result)));
                 }
 
                 //else captureGroup
                 var res = _parse(content, c.Next()).AssertNoRequest();
                 return new ParseResult(new Capture(res.Result));
-            }, "RECURSIVE"));//括弧の解決
+            }, "RECURSIVE"));
 
-            ParseStage.Add(Tuple.Create<Regex, Generator, string>(EscapeLiteral, (match, c) => new ParseResult(new Literal(@"\")), "ESCAPE_LETERAL"));//エスケープリテラルの解決
+
+            //エスケープの解決
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(EscapeLiteral, (match, c) => new ParseResult(new Literal(@"\")), "ESCAPE_LETERAL"));
             ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\d"), (match, c) => new ParseResult(new Digit()), "DIGIT_ALIAS"));
             ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\("), (match, c) => new ParseResult(new Literal("(")), "(_LITERAL"));
             ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\)"), (match, c) => new ParseResult(new Literal(")")), ")_LITERAL"));
-            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\+"), (match, c) => new ParseResult(new Literal("+")), ")_LITERAL"));
-            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\*"), (match, c) => new ParseResult(new Literal("*")), ")_LITERAL"));
-            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\."), (match, c) => new ParseResult(new Literal(".")), ")_LITERAL"));
-            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\?"), (match, c) => new ParseResult(new Literal("?")), ")_LITERAL"));
-            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"+"), (match, c) => new ParseResult(null) {AheadRequest = (ahead=>new OneOrMore(ahead))}, ")_LITERAL"));
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\+"), (match, c) => new ParseResult(new Literal("+")), "+_LITERAL"));
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\*"), (match, c) => new ParseResult(new Literal("*")), "*_LITERAL"));
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\."), (match, c) => new ParseResult(new Literal(".")), "._LITERAL"));
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\?"), (match, c) => new ParseResult(new Literal("?")), "?_LITERAL"));
+
+            //特殊文字の解決
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"+"), (match, c) => new ParseResult(null, (ahead => new OneOrMore(ahead)),null) , "+"));
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"*"), (match, c) => new ParseResult(null, (ahead => new ZeroOrMore(ahead)),null) , "*"));
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"?"), (match, c) => new ParseResult(null, (ahead => new ZeroOrOne(ahead)),null) , "?"));
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"."), (match, c) => new ParseResult(new Any()) , "."));
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"^"), (match, c) => new ParseResult(new Head()) , "^"));
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"$"), (match, c) => new ParseResult(new Tail()) , "$"));
         }
 
         public static readonly Regex EscapeLiteral = Regex.Make().Literal(@"\\");
@@ -110,7 +120,7 @@ namespace ExRegex.Parse
             if (regexString == "")
             {
                 Console.WriteLine(String.Format("{0}EMPTY", indent));
-                return null;
+                return new ParseResult(new Empty());
             }
             Console.WriteLine(String.Format("{0}{1}", indent, regexString));
             indent = indent + ">";
@@ -134,9 +144,8 @@ namespace ExRegex.Parse
                     var afterReg = _parse(match.AfterStr, context.Next());
                     var mm = ParseStage[i].Item2(match, context);
 
-                    var res = afterReg;
-                    res = afterReg != null ? afterReg.ConnectAhead(mm) : mm;
-                    res = res != null ? res.ConnectAhead(preReg) : preReg;
+                    var res = afterReg.ConnectAhead(mm);
+                    res = res.ConnectAhead(preReg);
                     return res;
                 }
                 Console.WriteLine(String.Format("{0}parse stage:{1} is not match.", indent, i));
@@ -151,13 +160,18 @@ namespace ExRegex.Parse
 
         public class ParseResult
         {
-            public Regex Result;
-            public Func<Regex, Regex> AheadRequest;//先読み
-            public Func<Regex, Regex> BehindRequest;
+            public Regex Result { get; }
+            public Func<Regex, Regex> AheadRequest { get; }//先読み
+            public Func<Regex, Regex> BehindRequest { get; }
 
-            public ParseResult(Regex result)
+            public ParseResult(Regex result):this(result,null,null)
             {
-                Result = result;
+            }
+            public ParseResult(Regex result, Func<Regex, Regex> aheadRequest, Func<Regex, Regex> behindRequest)
+            {
+                Result = result ?? new Empty();
+                AheadRequest = aheadRequest;
+                BehindRequest = behindRequest;
             }
 
             /// <summary>
@@ -167,77 +181,34 @@ namespace ExRegex.Parse
             /// <returns></returns>
             public ParseResult ConnectAhead(ParseResult ahead)
             {
-                if (ahead == null)
-                {
-                    return new ParseResult(Result) { AheadRequest = AheadRequest, BehindRequest = BehindRequest };
-                }
-
                 var res = ahead.Result;
                 var aheadReq = ahead.AheadRequest;
                 var behindReq = BehindRequest;
                 //aheadが先頭側。
                 if (AheadRequest != null)
                 {
-                    if (res != null)
+                    //res.TAILを置換
+                    var newTail = AheadRequest(res.TailRegex);
+                    if (!res.ReplaceTail(newTail))
                     {
-                        //res.TAILを置換
-                        var newTail = AheadRequest(res.TailRegex);
-                        if (!res.ReplaceTail(newTail))
-                        {
-                            res = newTail;
-                        }
+                        res = newTail;
                     }
-                    else if (aheadReq != null)
-                    {
-                        throw new Exception("AHEADの重複");
-                    }
-                    else
-                    {
-                        aheadReq = AheadRequest;
-                    }
+
                 }
+                Regex newHead = Result;
                 if (ahead.BehindRequest != null)
                 {
-                    if (Result != null)
-                    {
-                        //Result.HEADを置換
-                        var newHead = ahead.BehindRequest(Result);
-                        Result.ReplaceHead(newHead);
-                        Result = newHead;
 
+                    //Result.HEADを置換
+                    newHead = ahead.BehindRequest(Result);
+                    Result.ReplaceHead(newHead);
 
-
-                    }
-                    else if (behindReq != null)
-                    {
-                        //例外
-                        throw new Exception("BEHINDの重複");
-                    }
-                    else
-                    {
-                        behindReq = ahead.BehindRequest;
-                    }
                 }
-                if (res != null)
-                {
-                    if (Result != null)
-                    {
-                        res = res.To(Result);
-                    }
-                }
-                else
-                {
-                    if (Result != null)
-                    {
-                        res = Result;
-                    }
-                }
+                res = res.To(newHead);
 
-                return new ParseResult(res)
-                {
-                    AheadRequest = aheadReq,
-                    BehindRequest = behindReq
-                };
+
+
+                return new ParseResult(res, aheadReq, behindReq);
             }
 
             public ParseResult AssertNoRequest()

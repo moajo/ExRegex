@@ -26,15 +26,11 @@ namespace ExRegex.Regexies
 
         public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str, MatingContext context)
         {
-            foreach (var match in _content.SimpleMatchings(str,context))
+            foreach (var match in _content.HeadMatches(str,context))
             {
                 yield return new CompositeMatch(this,str,match);
             }
         }
-
-        public override string ToString()
-        {
-            return String.Format("{0}[content:{1}]", base.ToString(), _content.ToStructureString());
-        }
+        
     }
 }

@@ -18,7 +18,7 @@ namespace ExRegex
         /// 後続を接続
         /// </summary>
         /// <param name="nextRegex"></param>
-        public virtual Regex To(Regex nextRegex)
+        public virtual Regex To(Regex nextRegex)//TODO:immutableにしたい
         {
             if (nextRegex is Empty)
             {
@@ -89,7 +89,7 @@ namespace ExRegex
         /// <returns></returns>
         public IEnumerable<RegexMatch> TailMatches(StringPointer str, MatingContext context)
         {
-            return Matches(str).Where(match => match.AfterStr == "");
+            return Matches(str,context).Where(match => match.AfterStr == "");
         }
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace ExRegex
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
-        public IEnumerable<RegexMatch> Matches(StringPointer str)//TODOコンテキスト受けとれ
+        public IEnumerable<RegexMatch> Matches(StringPointer str, MatingContext context)//TODOコンテキスト受けとれ
         {
             for (int i = 0; i < str.Length + 1; i++)
             {
@@ -110,7 +110,7 @@ namespace ExRegex
         }
         public IEnumerable<RegexMatch> Matches(string str)
         {
-            return Matches((StringPointer)str);
+            return Matches((StringPointer)str,new MatingContext());
         }
 
         /// <summary>
