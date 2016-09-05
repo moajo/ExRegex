@@ -145,5 +145,10 @@ namespace ExRegex
         {
             return Name;
         }
+
+        public virtual string ToStructureString()
+        {
+            return String.Format("{0}\n{1}",ToString(),_nextRegex!=null?_nextRegex.ToStructureString():"");
+        }
     }
 }
