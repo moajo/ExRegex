@@ -12,15 +12,24 @@ namespace ExRegex.Parse
     public static class RegexParser
     {
         //<文字列から探すRegex,[その文字列に対応するRegex]を生成するやつ>
-        private static readonly List<Tuple<Regex, Func<RegexMatch,ParsingText, Regex>,string>> ParseStage = new List<Tuple<Regex, Func<RegexMatch, ParsingText, Regex>, string>>();
+        private static readonly List<Tuple<Regex, Generator, string>> ParseStage = new List<Tuple<Regex, Generator, string>>();
+
+        /// <summary>
+        /// マッチしたところに対応する正規表現を生成するやつ
+        /// </summary>
+        /// <param name="captures">キャプチャ部分のパース中文字列</param>
+        /// <param name="parsingText">マッチ部分のパース中文字列</param>
+        /// <param name="context">その時点でのコンテキスト</param>
+        /// <returns></returns>
+        public delegate Regex Generator(ParsingText[] captures, ParsingText parsingText,ParseContext context);
 
         static RegexParser()
         {
-            ParseStage.Add(Tuple.Create<Regex, Func<RegexMatch, ParsingText, Regex>, string>(EscapeLiteral,(match,pt)=> new Literal(@"\"),"ESCAPE_LETERAL"));//エスケープリテラルの解決
-            ParseStage.Add(Tuple.Create<Regex, Func<RegexMatch, ParsingText, Regex>, string>(new Literal(@"\d"), (match, pt) => new Digit(),"DIGIT_ALIAS"));
-            ParseStage.Add(Tuple.Create<Regex, Func<RegexMatch, ParsingText, Regex>, string>(new Literal(@"\("), (match, pt) => new Literal("("), "(_LITERAL"));
-            ParseStage.Add(Tuple.Create<Regex, Func<RegexMatch, ParsingText, Regex>, string>(new Literal(@"\)"), (match, pt) => new Literal(")"), "(_LITERAL"));
-            ParseStage.Add(Tuple.Create<Regex, Func<RegexMatch, ParsingText, Regex>, string>(new Literal(@"\)"), (match, pt) => new Literal(")"), "(_LITERAL"));
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(EscapeLiteral,(match,pt,c)=> new Literal(@"\"),"ESCAPE_LETERAL"));//エスケープリテラルの解決
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\d"), (match, pt,c) => new Digit(),"DIGIT_ALIAS"));
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\("), (match, pt,c) => new Literal("("), "(_LITERAL"));
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\)"), (match, pt,c) => new Literal(")"), ")_LITERAL"));
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Brace(), (match, pt,c) =>  _parse(match.First(),c.Next()) , "BRACE_LITERAL"));
         }
 
         public static readonly Regex EscapeLiteral = Regex.Make().Literal(@"\\");
@@ -81,18 +90,8 @@ namespace ExRegex.Parse
                 {
                     Console.WriteLine(String.Format("{0}parse stage:{1} is not match.", indent, i));
                 }
-                regexText.ReplaceMatches(l, ParseStage[i].Item2);
+                regexText.ReplaceMatches(l, ParseStage[i].Item2,context);
                 regexString = regexText.ToString();//マッチ箇所が削除されたように見える
-                //var match =  ParseStage[i].Item1.MatchesRegular((StringPointer)regexString).FirstOrDefault();
-                //if (match != null)
-                //{
-                //    Console.WriteLine(String.Format("{0}parse stage:{1} FIND.", indent, i));
-                //    regexText.Replace(match,pt=> ParseStage[i].Item2(match,pt));
-                //    //var preReg = _parse(match.PreStr, new ParseContext(context.Next()) { SkipStageCount = i+1 });
-                //    //var afterReg = _parse(match.AfterStr, context.Next());
-                //    //return preReg.To(ParseStage[i].Item2(match)).To(afterReg);
-                //}
-                //Console.WriteLine(String.Format("{0}parse stage:{1} is not match.", indent, i));
             }
             Console.WriteLine(String.Format("{0}all stage passed. remaining: {1}", indent,regexString));
 
@@ -110,7 +109,7 @@ namespace ExRegex.Parse
             return regexText.ToRegex();
         }
 
-        private class ParseContext
+        public class ParseContext
         {
             public int Depth=0;
             public int SkipStageCount=0;
@@ -123,6 +122,10 @@ namespace ExRegex.Parse
                 Depth = from.Depth;
             }
 
+            /// <summary>
+            /// 深度だけ深くしたコピー
+            /// </summary>
+            /// <returns></returns>
             public ParseContext Next()
             {
                 var next = new ParseContext(this);

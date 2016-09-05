@@ -42,7 +42,7 @@ namespace ExRegex.Parse
 
         //}
 
-        public void ReplaceMatches(IEnumerable<RegexMatch> matches, Func<RegexMatch,ParsingText, Regex> generator)
+        public void ReplaceMatches(IEnumerable<RegexMatch> matches, RegexParser.Generator generator,RegexParser.ParseContext context)
         {
             var matchArray = matches.ToArray();
             var startIndexies = matchArray.Select(m => GetRealIndex(m.Str.Pointer)).ToArray();
@@ -55,10 +55,29 @@ namespace ExRegex.Parse
                 var endNodeIndex = CreateEndNodeIndex(endIndexies[i]);
 
                 var next = new ParsingText(_list.Take(endNodeIndex).Skip(startNodeIndex));//指定位置
-                var regex = generator(matchArray[i],next);
+
+                //キャプチャ部分のマッチを対応するParsingTextに変換
+                var t = GetRealIndexes(matchArray[i].GetCaptures().ToArray());
+                var t2 =t.Select(tuple => GetParsingSubText(tuple.Item1, tuple.Item2)).ToArray();
+                var regex = generator(t2,next,context);
                 _list.RemoveRange(startNodeIndex, endNodeIndex - startNodeIndex);
                 _list.Insert(startNodeIndex, new RegexNode(regex, next.ToString()));
             }
+        }
+
+        public Tuple<int, int>[] GetRealIndexes(params RegexMatch[] matches)
+        {
+            var startIndexies = matches.Select(m => GetRealIndex(m.Str.Pointer)).ToArray();
+            var endIndexies = matches.Select(m => GetRealIndex(m.Str.Pointer + m.Length)).ToArray();
+            return startIndexies.Zip(endIndexies, Tuple.Create).ToArray();
+        }
+
+        public ParsingText GetParsingSubText(int startRealIndex, int endRealIndex)
+        {
+            var startNodeIndex = CreateStartNodeIndex(startRealIndex);
+            var endNodeIndex = CreateEndNodeIndex(endRealIndex);
+
+            return  new ParsingText(_list.Take(endNodeIndex).Skip(startNodeIndex));
         }
 
         public Regex ToRegex()
@@ -157,12 +176,16 @@ namespace ExRegex.Parse
             var diff = 0;
             for (int i = 0; i < _list.Count; i++)
             {
+                if (_list[i] is RegexNode)
+                {
+                    diff += _list[i].RealText.Length;
+                    continue;
+                }
                 total += _list[i].Text.Length;
                 if (total>=index)
                 {
                     return index + diff;
                 }
-                diff += _list[i].RealText.Length - _list[i].Text.Length;
             }
             throw new Exception("みつからない");
         }
