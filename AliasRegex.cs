@@ -20,5 +20,10 @@ namespace ExRegex
                 yield return new CompositeMatch(this,str,match);
             }
         }
+
+        public override string ToString()
+        {
+            return "(ALIAS)" + base.ToString();
+        }
     }
 }

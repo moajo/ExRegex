@@ -41,16 +41,15 @@ namespace ExRegexSample
             //list.Add(Tuple.Create("(?=): match", Regex.Make().To(new PositiveLookahead("aaa", "b"))));
             //list.Add(Tuple.Create("(?!): unmatch", Regex.Make().To(new NegativeLookahead("aaa", "a"))));
             //list.Add(Tuple.Create("(?!): match", Regex.Make().To(new NegativeLookahead("aaa", "b"))));
-            list.Add(Tuple.Create("(?!): match", Regex.Make().To(new PositiveLookbehind("bbb", "a"))));
-            list.Add(Tuple.Create("(?!): unmatch", Regex.Make().To(new PositiveLookbehind("bbb", "x"))));
-            list.Add(Tuple.Create("(?!): 1 match", Regex.Make().To(new NegativeLookbehind("bbb", "a"))));
-            list.Add(Tuple.Create("(?!): 2 match", Regex.Make().To(new NegativeLookbehind("bbb", "x"))));
+            //list.Add(Tuple.Create("(?!): match", Regex.Make().To(new PositiveLookbehind("bbb", "a"))));
+            //list.Add(Tuple.Create("(?!): unmatch", Regex.Make().To(new PositiveLookbehind("bbb", "x"))));
+            //list.Add(Tuple.Create("(?!): 1 match", Regex.Make().To(new NegativeLookbehind("bbb", "a"))));
+            //list.Add(Tuple.Create("(?!): 2 match", Regex.Make().To(new NegativeLookbehind("bbb", "x"))));
 
             for (int i = 0; i < list.Count; i++)
             {
                 ShowLog(list[i].Item1,text,list[i].Item2);
             }
-            Console.ReadLine();
 
             //---------------------------------結合先頭マッチテスト--------------------------------------------
             var list2 = new List<Tuple<string, Regex, string>>();
@@ -82,7 +81,12 @@ namespace ExRegexSample
             var rg = Regex.Make().Literal("(").To(new ZeroOrMore(new Any())).Literal(")");//単純括弧ok
             var rg2 = Regex.Make().To(new ZeroOrMore(new OrInvert('(',')')));//括弧じゃない奴らの連続ちょっとちがうけどok
             var rg3 = Regex.Make().To(new Or("()",new OneOrMore(new OrInvert('(', ')'))));//ok
-            var rgx4 = Regex.Make().To(new Named("kakko", new Literal("(").To(new ZeroOrMore(new Or(new OrInvert('(', ')'), new Reference("kakko")))).Literal(")")));//括弧とれた！！！！
+            var rgx4 = Regex.Make().To(new Named("kakko", new UnEscaped(new Literal("(")).To(new ZeroOrMore(new Or(new OrInvert('(', ')'), new Reference("kakko")))).Literal(")")));//括弧とれた！！！！
+            //var rg5 = new UnEscaped(new Literal("("));//エスケープされない括弧開き
+            var escapedB=new PositiveLookbehind(new Literal("("), new Or(new Head(), new OrInvert('\\')).To(new Literal(@"\")).To(new ZeroOrMore(new Literal(@"\\"))));
+            var escapedB2=new PositiveLookbehind(new Literal(")"), new Or(new Head(), new OrInvert('\\')).To(new Literal(@"\")).To(new ZeroOrMore(new Literal(@"\\"))));
+
+            var rgx44 = Regex.Make().To(new Named("kakko", new UnEscaped(new Literal("(")).To(new ZeroOrMore(new Or(new OrInvert('(', ')'),escapedB,escapedB2, new Reference("kakko")))).To(new UnEscaped(new Literal(")")))));//括弧とれた！！！！
             //list3.Add(Tuple.Create("aaa(ddd)fff", rg));//ok
             //list3.Add(Tuple.Create("aaa(ddd)f(f)f", rg));//ok
             //list3.Add(Tuple.Create("aaa(d(d)d)f(f)f", rg));//ok
@@ -98,13 +102,16 @@ namespace ExRegexSample
             //list3.Add(Tuple.Create("nn(a(a)nn", rgx4));
             //list3.Add(Tuple.Create("123", Regex.Make().To(new Digit())));
             //list3.Add(Tuple.Create("123", Regex.Make().To(new OneOrMore(new Digit()))));
-
+            list3.Add(Tuple.Create(@"\\(()a\()aa(\\\(a)", new UnEscapedBraces() as  Regex));
+            
             foreach (var tuple in list3)
             {
 
                 ShowLog("3rdTest::", tuple.Item1, tuple.Item2);
 
             }
+
+            Console.ReadLine();
 
 
             var strList = new List<string>();
