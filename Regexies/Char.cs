@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ExRegex.Match;
 
 namespace ExRegex.Regexies
@@ -6,7 +7,7 @@ namespace ExRegex.Regexies
     /// <summary>
     /// 一文字にマッチ
     /// </summary>
-    public class Char:Regex
+    public class Char: CharRegex
     {
         private readonly char _content;
 
@@ -24,13 +25,9 @@ namespace ExRegex.Regexies
             return new Char(_content);
         }
 
-        public override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str, MatingContext context)
+        public override string ToString()
         {
-            var s = new string(new char[] {_content});
-            if (str.Value().StartsWith(s))
-            {
-                yield return new AtomicMatch(this, str,1);
-            }
+            return base.ToString()+String.Format("({0})",_content);
         }
 
         /// <summary>
@@ -40,6 +37,11 @@ namespace ExRegex.Regexies
         public static implicit operator Char(char c)
         {
             return new Char(c);
+        }
+
+        public override bool CheckChar(char c)
+        {
+            return c == _content;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,7 @@ using ExRegex.Match;
 using ExRegex.Parse;
 using ExRegex.Regexies;
 using ExRegex.Regexies.Aliases;
+using Char = ExRegex.Regexies.Char;
 
 namespace ExRegexSample
 {
@@ -75,9 +77,17 @@ namespace ExRegexSample
 
             //---------------------------------全体マッチテスト--------------------------------------------
             var list3 = new List<Tuple<string, Regex>>();
-            var regg = new Capture(new OneOrMore(new OrInvert('a')));
+            var regg = new Capture(new OneOrMore(new Or(new OrInvert('|'),new Escaped(new Char('|')))));//|に挟まれる奴
+            var a = new ZeroOrMore(new Or(regg,new UnEscaped('|')));//[]の中身
+            var aa = new UnEscaped('[').To(a).To(new UnEscaped(']'));
             var aasaa = new OneOrMore(regg.To(new Literal("a"))).To(regg);
-            //list3.Add(Tuple.Create("ffatae", Regex.Make().To(new OneOrMore(regg.To(new Literal("a"))).To(regg))));
+            var b0 = new OrInvert('\\','[',']');//\じゃないやつ
+            var b1 = new Literal(@"\").To(new Any());
+            var b2 = new OneOrMore(new Capture(new Or(b0, b1)));
+            var b3 = new UnEscaped('[');
+            var b4 = new UnEscaped(']');
+            var b = b3.To(b2);
+            //list3.Add(Tuple.Create(@"as\[asd[a\d\]d\ds]", new UnEscapedOrBrace() as Regex));
             //list3.Add(Tuple.Create("ffabtabeaabbab", Regex.Make().To(new OneOrMore(new Literal("a").To(new Literal("b"))))));
             //list3.Add(Tuple.Create("aatestatest", Regex.Make().Literal("test")));
             //list3.Add(Tuple.Create("aatestatesttasttust", Regex.Make().Literal("t").To(new Capture(new Any())).Literal("st")));
@@ -85,12 +95,12 @@ namespace ExRegexSample
             var rg = Regex.Make().Literal("(").To(new ZeroOrMore(new Any())).Literal(")");//単純括弧ok
             var rg2 = Regex.Make().To(new ZeroOrMore(new OrInvert('(',')')));//括弧じゃない奴らの連続ちょっとちがうけどok
             var rg3 = Regex.Make().To(new Or("()",new OneOrMore(new OrInvert('(', ')'))));//ok
-            var rgx4 = Regex.Make().To(new Named("kakko", new UnEscaped(new Literal("(")).To(new ZeroOrMore(new Or(new OrInvert('(', ')'), new Reference("kakko")))).Literal(")")));//括弧とれた！！！！
+            var rgx4 = Regex.Make().To(new Named("kakko", new UnEscaped('(').To(new ZeroOrMore(new Or(new OrInvert('(', ')'), new Reference("kakko")))).Literal(")")));//括弧とれた！！！！
             //var rg5 = new UnEscaped(new Literal("("));//エスケープされない括弧開き
             var escapedB=new PositiveLookbehind(new Literal("("), new Or(new Head(), new OrInvert('\\')).To(new Literal(@"\")).To(new ZeroOrMore(new Literal(@"\\"))));
             var escapedB2=new PositiveLookbehind(new Literal(")"), new Or(new Head(), new OrInvert('\\')).To(new Literal(@"\")).To(new ZeroOrMore(new Literal(@"\\"))));
 
-            var rgx44 = Regex.Make().To(new Named("kakko", new UnEscaped(new Literal("(")).To(new ZeroOrMore(new Or(new OrInvert('(', ')'),escapedB,escapedB2, new Reference("kakko")))).To(new UnEscaped(new Literal(")")))));//括弧とれた！！！！
+            //var rgx44 = Regex.Make().To(new Named("kakko", new UnEscaped(new Literal("(")).To(new ZeroOrMore(new Or(new OrInvert('(', ')'),escapedB,escapedB2, new Reference("kakko")))).To(new UnEscaped(new Literal(")")))));//括弧とれた！！！！
             //list3.Add(Tuple.Create("aaa(ddd)fff", rg));//ok
             //list3.Add(Tuple.Create("aaa(ddd)f(f)f", rg));//ok
             //list3.Add(Tuple.Create("aaa(d(d)d)f(f)f", rg));//ok
@@ -119,21 +129,28 @@ namespace ExRegexSample
             var strList = new List<string>();
             //strList.Add(@"aaaaaaaaaaa");//単純リテラル
             //strList.Add(@"\\aaa\\ss\\sss");//エスケープリテラル
-            strList.Add(@"\\a\daa\\s\d\ds\\\dsss");//エスケープ
+            //strList.Add(@"\\a\daa\\s\d\ds\\\dsss");//エスケープ
             //strList.Add(@"\\a\))\da(a\\s\(");//エスケープ
             //strList.Add(@"\\d");//エスケープ
             //strList.Add(@"\\(a)\d");//エスケープ
             //strList.Add(@"\\a(\))a)(as\(");//エスケープ
-            strList.Add(@"\\a(\))\da)(a\\s\(");//エスケープ
-            strList.Add(@"\\ddf(gh(df)gh)(df)gh");//エスケープ
+            //strList.Add(@"\\a(\))\da)(a\\s\(");//エスケープ
+            //strList.Add(@"\\ddf(gh(df)gh)(df)gh");//エスケープ
             //strList.Add(@"aaaaa(bbbb)ccc");//エスケープ
             //strList.Add(@"aaaaa(?:bbbb)ccc");//エスケープ
             //strList.Add(@"aaaaa(?=bbbb)ccc");//エスケープ
             //strList.Add(@"aaaaa(?!bbbb)ccc");//エスケープ
             //strList.Add(@"aaaaa(?<=bbbb)ccc");//エスケープ
-            //strList.Add(@"aaaaa(?<!bbbb)ccc");//エスケープ
+            //strList.Add(@"aaaa(?=a(??bbbb)c)cc");//エスケープ
 
-            strList.Add(@"a+bc");//エスケープ
+            //strList.Add(@"a+bc");//エスケープ
+            //strList.Add(@"a?bc");//エスケープ
+            //strList.Add(@"a*bc");//エスケープ
+            //strList.Add(@"a.bc");//エスケープ
+            //strList.Add(@"a^bc");//エスケープ
+            //strList.Add(@"a\$\[$b]c");//エスケープ
+            //strList.Add(@"a[abcde]b");//エスケープ
+            //strList.Add(@"a[^abcde]b");//エスケープ
 
             int count=0;
             foreach (var regStr in strList)
@@ -145,6 +162,40 @@ namespace ExRegexSample
                 Console.WriteLine("\n@@@Structure@@@");
                 Console.WriteLine(reg.ToStructureString());
             }
+
+            var parseList = new List<Tuple<string, string>>();
+            
+            //parseList.Add(Tuple.Create(@"\d\d\d-\d\d\d\d", "00000000"));
+            //parseList.Add(Tuple.Create(@"\d\d\d-\d\d\d\d", "000-0000"));
+            //parseList.Add(Tuple.Create(@"b.k", "bak"));
+            //parseList.Add(Tuple.Create(@"b.k", "btk"));
+            //parseList.Add(Tuple.Create(@"b.k", "btrk"));
+            //parseList.Add(Tuple.Create(@"b.+k", "btrk"));
+            //parseList.Add(Tuple.Create(@"b.+k", "bk"));
+            //parseList.Add(Tuple.Create(@"b.+k", "btssrkss"));
+            //parseList.Add(Tuple.Create(@"b.*k", "btrk"));
+            //parseList.Add(Tuple.Create(@"b.*k", "bk"));
+            //parseList.Add(Tuple.Create(@"[13579]", "4"));
+            //parseList.Add(Tuple.Create(@"[13579]", "4123445678"));
+
+            foreach (var tuple in parseList)
+            {
+                var reg = RegexParser.Parse(tuple.Item1);
+                ShowLog(tuple.Item1+" ===> "+tuple.Item2,tuple.Item2,reg);
+                Console.ReadLine();
+            }
+
+            while (true)
+            {
+                Console.Write("imput [Rr]egex:  \t>");
+                string reg = Console.ReadLine();
+                Console.Write("input [Tt]ext:   \t>");
+                string te = Console.ReadLine();
+                var regex = RegexParser.Parse(reg);
+                ShowLog(reg+" ===> "+te,te,regex);
+                Console.WriteLine("\n\n");
+            }
+
 
 
             Console.Read();
@@ -164,15 +215,6 @@ namespace ExRegexSample
                 Console.WriteLine();
                 Console.WriteLine("@" + count++);
                 Console.WriteLine(match.ShowMatchText);
-            }
-
-            Console.WriteLine("@@@MatchALL@@@");
-            count = 0;
-            foreach (var match in regex.Matches(targetText))
-            {
-                Console.WriteLine();
-                Console.WriteLine("@" + count++);
-                Console.WriteLine(match.ShowMatchText);
 
                 Console.WriteLine("@@Capture@@");
                 foreach (var capture in match.GetCaptures())
@@ -183,6 +225,24 @@ namespace ExRegexSample
                 Console.WriteLine("@@Match@@");
                 Console.WriteLine(match);
             }
+
+            //Console.WriteLine("@@@MatchALL@@@");
+            //count = 0;
+            //foreach (var match in regex.Matches(targetText))
+            //{
+            //    Console.WriteLine();
+            //    Console.WriteLine("@" + count++);
+            //    Console.WriteLine(match.ShowMatchText);
+
+            //    Console.WriteLine("@@Capture@@");
+            //    foreach (var capture in match.GetCaptures())
+            //    {
+            //        Console.WriteLine(String.Format("{0}", capture.MatchStr));
+            //    }
+
+            //    Console.WriteLine("@@Match@@");
+            //    Console.WriteLine(match);
+            //}
         }
     }
 }

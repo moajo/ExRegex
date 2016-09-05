@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ExRegex.Match;
 using ExRegex.Regexies;
 using ExRegex.Regexies.Aliases;
+using Char = ExRegex.Regexies.Char;
 
 namespace ExRegex.Parse
 {
@@ -13,6 +15,7 @@ namespace ExRegex.Parse
     {
         //<文字列から探すRegex,[その文字列に対応するRegex]を生成するやつ>
         private static readonly List<Tuple<Regex, Generator, string>> ParseStage = new List<Tuple<Regex, Generator, string>>();
+        private static bool debug = true;
 
         /// <summary>
         /// マッチしたところに対応する正規表現を生成するやつ
@@ -52,22 +55,49 @@ namespace ExRegex.Parse
                     var contentResult = _parse(content.Substring(3), c.Next()).AssertNoRequest();
                     return new ParseResult(null,null, (behind => new NegativeLookbehind(behind, contentResult.Result)));
                 }
+                if (new Head().To(new Literal("??")).IsHeadMatch(content))//名前参照
+                {
+                    return new ParseResult(new Reference(content.Substring(2)));
+                }
 
                 //else captureGroup
                 var res = _parse(content, c.Next()).AssertNoRequest();
                 return new ParseResult(new Capture(res.Result));
             }, "RECURSIVE"));
 
+            //[]の解決
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new UnEscapedOrBrace(), (match, c) =>
+            {
+                var first = match.GetCaptures().FirstOrDefault();
+                if (first != null && first.MatchStr == "^")
+                {
+                    var elems = match.GetCaptures().Skip(1).Select(m => _parse(m.MatchStr, c.Next()).Result);
+                    if (!elems.All(elem => elem is CharRegex))
+                    {
+                        throw new Exception("不明なエスケープ");
+                    }
+                    var chars = elems.Select(elem => (CharRegex) elem).ToArray();
+                    return new ParseResult(new OrInvert(chars));
+                }
+                else
+                {
+                    var elems = match.GetCaptures().Select(m => _parse(m.MatchStr, c.Next()).Result).ToArray();
+                    return new ParseResult(new Or(elems));
+                }
+            }, "OR"));
+
 
             //エスケープの解決
             ParseStage.Add(Tuple.Create<Regex, Generator, string>(EscapeLiteral, (match, c) => new ParseResult(new Literal(@"\")), "ESCAPE_LETERAL"));
             ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\d"), (match, c) => new ParseResult(new Digit()), "DIGIT_ALIAS"));
-            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\("), (match, c) => new ParseResult(new Literal("(")), "(_LITERAL"));
-            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\)"), (match, c) => new ParseResult(new Literal(")")), ")_LITERAL"));
-            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\+"), (match, c) => new ParseResult(new Literal("+")), "+_LITERAL"));
-            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\*"), (match, c) => new ParseResult(new Literal("*")), "*_LITERAL"));
-            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\."), (match, c) => new ParseResult(new Literal(".")), "._LITERAL"));
-            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\?"), (match, c) => new ParseResult(new Literal("?")), "?_LITERAL"));
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\("), (match, c) => new ParseResult(new Char('(')), "(_LITERAL"));
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\)"), (match, c) => new ParseResult(new Char(')')), ")_LITERAL"));
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\+"), (match, c) => new ParseResult(new Char('+')), "+_LITERAL"));
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\*"), (match, c) => new ParseResult(new Char('*')), "*_LITERAL"));
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\."), (match, c) => new ParseResult(new Char('.')), "._LITERAL"));
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\?"), (match, c) => new ParseResult(new Char('?')), "?_LITERAL"));
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\$"), (match, c) => new ParseResult(new Char('$')), "$_LITERAL"));
+            ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"\^"), (match, c) => new ParseResult(new Char('^')), "^_LITERAL"));
 
             //特殊文字の解決
             ParseStage.Add(Tuple.Create<Regex, Generator, string>(new Literal(@"+"), (match, c) => new ParseResult(null, (ahead => new OneOrMore(ahead)),null) , "+"));
@@ -88,8 +118,7 @@ namespace ExRegex.Parse
         }
         private static ParseResult _parse(string regexString, ParseContext context)
         {
-            /*
-            todo:実装
+            /*//TODO:
             +
             *
             ?
@@ -119,27 +148,30 @@ namespace ExRegex.Parse
             var indent = String.Join("", Enumerable.Range(0, context.Depth).Select(i => "  "));
             if (regexString == "")
             {
-                Console.WriteLine(String.Format("{0}EMPTY", indent));
+                if(debug) Console.WriteLine(String.Format("{0}EMPTY", indent));
                 return new ParseResult(new Empty());
             }
-            Console.WriteLine(String.Format("{0}{1}", indent, regexString));
+            if (debug) Console.WriteLine(String.Format("{0}{1}", indent, regexString));
             indent = indent + ">";
 
             int skipStage = context.SkipStageCount;
+            if (skipStage > 0)
+            {
+                if (debug) Console.WriteLine(String.Format("{0}skip stage:{1}", indent, skipStage));
+            }
 
             for (int i = 0; i < ParseStage.Count; i++)
             {
                 if (skipStage-- > 0)
                 {
-                    Console.WriteLine(String.Format("{0}skip stage:{1}", indent, i));
                     continue;
                 }
 
                 var match = ParseStage[i].Item1.MatchesRegular((StringPointer)regexString).FirstOrDefault();
                 if (match != null)
                 {
-                    Console.WriteLine(String.Format("{0}parse stage:{1} FIND.", indent, i));
-                    Console.WriteLine(String.Format("{0} {1}", indent, match.ShowMatchText));
+                    if (debug) Console.WriteLine(String.Format("{0}parse stage({1}):{2} FIND.", indent, i, ParseStage[i].Item3));
+                    if (debug) Console.WriteLine(String.Format("{0} {1}", indent, match.ShowMatchText));
                     var preReg = _parse(match.PreStr, new ParseContext(context.Next()) { SkipStageCount = i + 1 });//括弧がないのでリクエストはありえない
                     var afterReg = _parse(match.AfterStr, context.Next());
                     var mm = ParseStage[i].Item2(match, context);
@@ -148,13 +180,14 @@ namespace ExRegex.Parse
                     res = res.ConnectAhead(preReg);
                     return res;
                 }
-                Console.WriteLine(String.Format("{0}parse stage:{1} is not match.", indent, i));
+                if (debug) Console.WriteLine(String.Format("{0}parse stage:{1} is not match.", indent, i));
             }
-            Console.WriteLine(String.Format("{0}all stage passed. remaining: {1}", indent, regexString));
-
-
-            //throw new NotImplementedException();
-            return new ParseResult(new DumRegex(regexString));
+            if (debug) Console.WriteLine(String.Format("{0}all stage passed. remaining: {1}", indent, regexString));
+            if (regexString.Length == 1)
+            {
+                return new ParseResult(new Char(regexString[0]));
+            }
+            return new ParseResult(new Literal(regexString));
         }
 
 
@@ -188,11 +221,26 @@ namespace ExRegex.Parse
                 if (AheadRequest != null)
                 {
                     //res.TAILを置換
-                    var newTail = AheadRequest(res.TailRegex);
-                    if (!res.ReplaceTail(newTail))
+                    if (!(res is Empty))
                     {
-                        res = newTail;
+                        var newTail = AheadRequest(res.TailRegex);
+                        if (!res.ReplaceTail(newTail))
+                        {
+                            res = newTail;
+                        }
                     }
+                    else
+                    {
+                        if (aheadReq != null)
+                        {
+                            throw new Exception("不正な構文");
+                        }
+                        else
+                        {
+                            aheadReq = AheadRequest;
+                        }
+                    }
+                    
 
                 }
                 Regex newHead = Result;
@@ -200,8 +248,24 @@ namespace ExRegex.Parse
                 {
 
                     //Result.HEADを置換
-                    newHead = ahead.BehindRequest(Result);
-                    Result.ReplaceHead(newHead);
+                    if (!(newHead is Empty))
+                    {
+                        newHead = ahead.BehindRequest(Result);
+                        Result.ReplaceHead(newHead);
+                    }
+                    else
+                    {
+                        if (behindReq != null)
+                        {
+                            throw new Exception("不正な構文");
+                        }
+                        else
+                        {
+                            behindReq = ahead.BehindRequest;
+                        }
+                        
+                    }
+                    
 
                 }
                 res = res.To(newHead);

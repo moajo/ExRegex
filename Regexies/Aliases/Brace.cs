@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace ExRegex.Regexies.Aliases
 {
+    [Obsolete]
     public class Brace:Alias
     {
         public override string Name

@@ -32,7 +32,7 @@ namespace ExRegex.Regexies
         {
             foreach (var regex in _regexes)
             {
-                foreach (var match in regex.SimpleMatchings(str, context))
+                foreach (var match in regex.HeadMatches(str, context))
                 {
                     yield return new CompositeMatch(this, str, match);
                 }

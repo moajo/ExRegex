@@ -10,15 +10,22 @@ namespace ExRegex.Regexies.Aliases
     /// <summary>
     /// \d
     /// </summary>
-    public class Digit:Alias
+    public class Digit:CharRegex
     {
         public override string Name
         {
             get { return "Digit"; }
         }
 
-        public Digit() : base(()=>new Or("0", "1", "2", "3", "4", "5", "6", "7", "8", "9"))
+        public override Regex Clone()
         {
+            return new Digit();
+        }
+
+        public override bool CheckChar(char c)
+        {
+            var list = new List<String>() { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+            return list.Exists(str => str[0] == c);
         }
     }
 }

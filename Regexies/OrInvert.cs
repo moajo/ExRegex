@@ -9,13 +9,17 @@ namespace ExRegex.Regexies
     /// [^]
     /// 指定した文字のどれにもマッチしなければその一文字に一致
     /// </summary>
-    public class OrInvert : Regex
+    public class OrInvert : Regex//TODO:CharRegex?
     {
-        private readonly Char[] _content;
+        private readonly CharRegex[] _content;
 
-        public OrInvert(params Char[] chars)
+        public OrInvert(params CharRegex[] chars)
         {
             _content = chars.ToArray();
+        }
+
+        public OrInvert(params char[] chars):this(chars.Select(c => new Char(c) as CharRegex).ToArray())
+        {
         }
         public override string Name
         {
