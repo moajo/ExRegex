@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ExRegex.Regexies;
 
 namespace ExRegex.Match
@@ -35,6 +36,17 @@ namespace ExRegex.Match
             Regex = regex;
             Str = str;
         }
+
+        /// <summary>
+        /// マッチの直前までの文字列
+        /// </summary>
+        public string PreStr { get { return Str.RawStr.Substring(0, Str.Pointer); } }
+        /// <summary>
+        /// マッチ直後以降の文字列
+        /// </summary>
+        public string AfterStr { get { return Str.SubString(Length).ToString(); } }
+
+        public string ShowMatchText { get { return String.Format("{0} >>{1}<< {2}", PreStr, MatchStr, AfterStr); } }
 
     }
 }
