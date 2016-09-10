@@ -55,6 +55,7 @@
     <Compile Include="Regexies\Aliases\Brace.cs" />
     <Compile Include="Regexies\Aliases\Digit.cs" />
     <Compile Include="Regexies\Aliases\Escaped.cs" />
+    <Compile Include="Regexies\Aliases\MetaChar.cs" />
     <Compile Include="Regexies\Aliases\OrSeparator.cs" />
     <Compile Include="Regexies\Aliases\UnEscapedBraces.cs" />
     <Compile Include="Regexies\Aliases\UnEscapedOrBrace.cs" />
@@ -75,6 +76,14 @@
     <Compile Include="Regexies\PositiveLookahead.cs" />
     <Compile Include="Regexies\PositiveLookbehind.cs" />
     <Compile Include="Regexies\Reference.cs" />
+    <Compile Include="Regexies\Syntax\CountRepeater.cs" />
+    <Compile Include="Regexies\Syntax\LookAheadSyntax.cs" />
+    <Compile Include="Regexies\Syntax\LookBehindSyntax.cs" />
+    <Compile Include="Regexies\Syntax\NegativeLookAheadSyntax.cs" />
+    <Compile Include="Regexies\Syntax\NegativeLookBehindSyntax.cs" />
+    <Compile Include="Regexies\Syntax\PositiveLookAheadSyntax.cs" />
+    <Compile Include="Regexies\Syntax\PositiveLookBehindSyntax.cs" />
+    <Compile Include="Regexies\Syntax\Repeater.cs" />
     <Compile Include="Regexies\Tail.cs" />
     <Compile Include="Regexies\Aliases\UnEscaped.cs" />
     <Compile Include="Regexies\ZeroOrMore.cs" />

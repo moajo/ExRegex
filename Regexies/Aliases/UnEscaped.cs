@@ -6,16 +6,21 @@
     /// </summary>
     public class UnEscaped:Alias
     {
-        private Regex _target;
+        private readonly char _target;
 
         public UnEscaped(char target) : base(()=> new PositiveLookbehind(new Char(target), new Or(new Head(), new OrInvert('\\')).To(new ZeroOrMore(new Literal(@"\\")))))
         {
-            //_target = target;
+            _target = target;
         }
 
         public override string Name
         {
             get { return "Unescaped"; }
+        }
+
+        public override Regex Clone()
+        {
+            return new UnEscaped(_target);
         }
     }
 }

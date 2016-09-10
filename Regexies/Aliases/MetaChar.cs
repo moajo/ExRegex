@@ -6,21 +6,22 @@ using System.Threading.Tasks;
 
 namespace ExRegex.Regexies.Aliases
 {
-    [Obsolete]
-    public class Brace:Alias
+    public class MetaChar:CharRegex
     {
         public override string Name
         {
-            get { return "Brace"; }
+            get { return "MetaChar"; }
         }
 
         public override Regex Clone()
         {
-            return new Brace();
+            return new MetaChar();
         }
 
-        public Brace() : base(()=>Make().To(new Named("kakko", new Literal("(").To(new Capture(new ZeroOrMore(new Or(new OrInvert('(', ')'), new Reference("kakko"))))).Literal(")"))))
+        public override bool CheckChar(char c)
         {
+            var str = @"^$.+*\?()[]{}|";
+            return str.ToCharArray().Contains(c);
         }
     }
 }

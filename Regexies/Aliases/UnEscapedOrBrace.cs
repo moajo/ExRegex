@@ -14,5 +14,15 @@ namespace ExRegex.Regexies.Aliases
         public UnEscapedOrBrace() : base(() => new UnEscaped(O).To(new ZeroOrMore(new Capture(new Or(new Literal(@"\").To(new Any()), new OrInvert(O, C))))).To(new UnEscaped(C)))
         {
         }
+
+        public override string Name
+        {
+            get { return "UnEscapedOrBrace"; }
+        }
+
+        public override Regex Clone()
+        {
+            return new UnEscapedOrBrace();
+        }
     }
 }

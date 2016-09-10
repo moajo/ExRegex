@@ -10,8 +10,17 @@ namespace ExRegex.Regexies.Aliases
     {
         public OrSeparator() : base(()=> new ZeroOrOne(new Capture(new OneOrMore(new Or(new OrInvert('|'), new Escaped(new Char('|')))))).To(new UnEscaped('|')).To(new ZeroOrMore(new Or(new Capture(new OneOrMore(new Or(new OrInvert('|'), new Escaped(new Char('|'))))), new UnEscaped('|')))))
         {
-            //var sonota = new Capture(new OneOrMore(new Or(new OrInvert('|'), new Escaped(new Char('|')))));
            
+        }
+
+        public override string Name
+        {
+            get { return "OrSepalator"; }
+        }
+
+        public override Regex Clone()
+        {
+            return new OrSeparator();
         }
     }
 }

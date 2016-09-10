@@ -10,40 +10,36 @@ namespace ExRegex.Regexies.Aliases
     /// <summary>
     /// 使い回すときはこれ使ってください
     /// </summary>
-    public class Alias:Regex
+    public abstract class Alias:Regex
     {
-        private readonly Func<Regex> _generator;
+        private readonly Regex _generator;
 
         public Alias(Func<Regex> generator)
         {
-            _generator = generator;
-        }
-        public override string Name
-        {
-            get { return "Alias"; }
+            _generator = generator();
         }
 
-        public override Regex Clone()
+        public Alias(Regex regex):this(regex.Clone)
         {
-            return new Alias(_generator);
+            
         }
 
 
         public sealed override IEnumerable<RegexMatch> SimpleMatchings(StringPointer str, MatingContext context)
         {
-            foreach (var match in _generator().HeadMatches(str, context))
+            foreach (var match in _generator.HeadMatches(str, context))
             {
                 yield return new CompositeMatch(this, str, match);
             }
         }
         public override string ToString()
         {
-            return "(ALIAS)" + base.ToString();
+            return "(ALIAS)" + Name;
         }
 
         protected override string StructureString()
         {
-            return _generator().ToStructureString();
+            return _generator.ToStructureString();
         }
     }
 }

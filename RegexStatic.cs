@@ -28,5 +28,25 @@ namespace ExRegex
         {
             return self.To(new Any());
         }
+        public static Regex OneOrMore(this Regex self,Regex target)
+        {
+            return self.To(new OneOrMore(target));
+        }
+        //public static Regex Any(this Regex self)
+        //{
+        //    return self.To(new Any());
+        //}
+        //public static Regex Any(this Regex self)
+        //{
+        //    return self.To(new Any());
+        //}
+        //public static Regex Any(this Regex self)
+        //{
+        //    return self.To(new Any());
+        //}
+        //public static Regex Any(this Regex self)
+        //{
+        //    return self.To(new Any());
+        //}
     }
 }

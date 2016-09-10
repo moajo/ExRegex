@@ -13,6 +13,11 @@ namespace ExRegex.Regexies.Aliases
             get { return "UnedcapedBraces"; }
         }
 
+        public override Regex Clone()
+        {
+            return new UnEscapedBraces();
+        }
+
         public UnEscapedBraces() : base(()=> Make().To(new Named("UnedcapedBraces", new UnEscaped('(').To(new Capture(new ZeroOrMore(new Or(new OrInvert('(', ')'), new Escaped('('), new Escaped(')'), new Reference("UnedcapedBraces"))))).To(new UnEscaped(')')))))
         {
         }

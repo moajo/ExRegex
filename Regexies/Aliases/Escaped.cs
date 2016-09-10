@@ -12,8 +12,20 @@ namespace ExRegex.Regexies.Aliases
     /// </summary>
     public class Escaped:Alias
     {
+        private readonly Char _target;
         public Escaped(Char target) : base(()=> new PositiveLookbehind(target, new Or(new Head(), new OrInvert('\\')).To(new Literal(@"\")).To(new ZeroOrMore(new Literal(@"\\")))))
         {
+            _target = target;
+        }
+
+        public override string Name
+        {
+            get { return "Escaped"; }
+        }
+
+        public override Regex Clone()
+        {
+            return new Escaped(_target);
         }
     }
 }

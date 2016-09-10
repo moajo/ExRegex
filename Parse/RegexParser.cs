@@ -25,6 +25,8 @@ namespace ExRegex.Parse
         /// <returns></returns>
         public delegate ParseResult Generator(RegexMatch match, ParseContext context,ParseResult pre,ParseResult after);
 
+        public delegate Regex Generator2(RegexMatch match, ParseContext context);
+
         static RegexParser()
         {
             //括弧の解決
