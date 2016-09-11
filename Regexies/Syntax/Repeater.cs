@@ -9,7 +9,7 @@ namespace ExRegex.Regexies.Syntax
 {
     public class Repeater:Alias
     {
-        public Repeater() : base(new Or("+","*","?",new CountRepeater()))
+        public Repeater() : base(new Or("+","*","?",new CountRepeaterSyntax(false)))
         {
         }
 
@@ -18,7 +18,7 @@ namespace ExRegex.Regexies.Syntax
             get { return "Repeater"; }
         }
 
-        public override Regex Clone()
+        protected override Regex SingleClone()
         {
             return new Repeater();
         }

@@ -11,17 +11,22 @@ namespace ExRegex
     /// </summary>
     public abstract class Regex
     {
+
         public abstract string Name { get; }
-        public abstract Regex Clone();
-        private Regex _nextRegex;
+        /// <summary>
+        /// 親子関係は考慮しない単純なクローン
+        /// </summary>
+        /// <returns></returns>
+        protected abstract Regex SingleClone();
+
 
         /// <summary>
         /// 後続を接続
         /// </summary>
         /// <param name="nextRegex"></param>
-        public virtual Regex To(Regex nextRegex)//TODO:ちゃんとimmutableにしたい
+        public virtual Regex To(Regex nextRegex)
         {
-            var clone = Clone();
+            var clone = SingleClone();
             if (nextRegex is Empty)
             {
                 return clone;
@@ -37,29 +42,159 @@ namespace ExRegex
             return clone;
         }
 
+        /// <summary>
+        /// 範囲重複を許容せず最高優先マッチ箇所をすべて列挙
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public IEnumerable<RegexMatch> MatchesRegular(StringPointer str)
+        {
+            for (int i = 0; i < str.Length + 1; i++)
+            {
+                var subStr = str.SubString(i);
+                var match = HeadMatch(subStr, new MatingContext());
+                if (match != null)
+                {
+                    yield return match;
+                    i += Math.Max(match.Length - 1, 0);
+                }
+            }
+        }
+
+        /// <summary>
+        /// マッチ箇所を全て列挙。重複箇所も。
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public IEnumerable<RegexMatch> Matches(string str)
+        {
+            return Matches((StringPointer)str, new MatingContext());
+        }
+
+
+        /// <summary>
+        /// 完全マッチ
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public IEnumerable<RegexMatch> PerfectMatches(string str)
+        {
+            return PerfectMatches((StringPointer)str,new MatingContext());
+        }
+
+
+        /// <summary>
+        /// 先頭マッチ
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public IEnumerable<RegexMatch> HeadMatches(string str)
+        {
+            return HeadMatches((StringPointer)str,new MatingContext());
+        }
+
+        /// <summary>
+        /// 末尾マッチ
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public IEnumerable<RegexMatch> TailMatches(string str)
+        {
+            return TailMatches((StringPointer)str,new MatingContext());
+        }
+
+        /// <summary>
+        /// 最初の完全マッチ
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public RegexMatch PerfectMatch(string str)
+        {
+            return PerfectMatches(str).FirstOrDefault();
+        }
+
+
+        /// <summary>
+        /// 最初の先頭マッチ
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public RegexMatch HeadMatch(string str)
+        {
+            return HeadMatches(str).FirstOrDefault();
+        }
+
+        /// <summary>
+        /// 最初の末尾マッチ
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public RegexMatch TailMatch(string str)
+        {
+            return TailMatches(str).FirstOrDefault();
+        }
+
+
+
+
+        /// <summary>
+        /// SingleCloneして親子関係も複製
+        /// </summary>
+        /// <returns></returns>
+        public Regex Clone()
+        {
+            var clone = SingleClone();
+            if (_nextRegex != null)
+            {
+                clone._nextRegex = _nextRegex.Clone();
+            }
+            return clone;
+        }
+
+
+
+
+
+
+
+
+        protected IEnumerable<RegexMatch> PerfectMatches(StringPointer str, MatingContext context)
+        {
+            return HeadMatches(str, context).Where(m => m.Length == str.Length);
+        }
+
+        private Regex _nextRegex;
+
+
 
         /// <summary>
         /// このRegexChainの再優先マッチを取得。マッチしなければnull
         /// </summary>
         /// <param name="str"></param>
+        /// <param name="context"></param>
         /// <returns></returns>
         public RegexMatch HeadMatch(StringPointer str, MatingContext context)
         {
             return HeadMatches(str,context).FirstOrDefault();
         }
-        public RegexMatch HeadMatch(string str, MatingContext context)
+
+        public bool IsPerfectMatch(string str)
         {
-            return HeadMatch(new StringPointer(str),context);
+            return PerfectMatch(str) != null;
         }
+
+
 
         public bool IsHeadMatch(string str)
         {
             return HeadMatch((StringPointer) str, new MatingContext()) != null;
         }
+
         /// <summary>
         /// 文字列の先頭から、後続を考慮したマッチを優先度順に列挙
         /// </summary>
         /// <param name="str"></param>
+        /// <param name="context"></param>
         /// <returns></returns>
         public IEnumerable<RegexMatch> HeadMatches(StringPointer str,MatingContext context)
         {
@@ -88,6 +223,7 @@ namespace ExRegex
         /// (後よみ用？)
         /// </summary>
         /// <param name="str"></param>
+        /// <param name="context"></param>
         /// <returns></returns>
         public IEnumerable<RegexMatch> TailMatches(StringPointer str, MatingContext context)
         {
@@ -98,8 +234,9 @@ namespace ExRegex
         /// テキスト全体でマッチ箇所を全て列挙
         /// </summary>
         /// <param name="str"></param>
+        /// <param name="context"></param>
         /// <returns></returns>
-        public IEnumerable<RegexMatch> Matches(StringPointer str, MatingContext context)//TODOコンテキスト受けとれ
+        public IEnumerable<RegexMatch> Matches(StringPointer str, MatingContext context)
         {
             for (int i = 0; i < str.Length + 1; i++)
             {
@@ -110,67 +247,9 @@ namespace ExRegex
                 }
             }
         }
-        public IEnumerable<RegexMatch> Matches(string str)
-        {
-            return Matches((StringPointer)str,new MatingContext());
-        }
 
-        /// <summary>
-        /// 範囲重複を許容せず最高優先マッチ箇所をすべて列挙
-        /// </summary>
-        /// <param name="str"></param>
-        /// <returns></returns>
-        public IEnumerable<RegexMatch> MatchesRegular(StringPointer str)
-        {
-            for (int i = 0; i < str.Length + 1; i++)
-            {
-                var subStr = str.SubString(i);
-                var match = HeadMatch(subStr,new MatingContext());
-                if (match != null)
-                {
-                    yield return match;
-                    i += Math.Max(match.Length - 1,0);
-                }
-            }
-        }
 
-        public Regex TailRegex
-        {
-            get
-            {
-                if (_nextRegex != null)
-                {
-                    return _nextRegex.TailRegex;
-                }
-                else
-                {
-                    return this;
-                }
-            }
-        }
-
-        public bool ReplaceTail(Regex newTail)
-        {
-            if (_nextRegex != null)
-            {
-                if (!_nextRegex.ReplaceTail(newTail))
-                {
-                    _nextRegex = newTail;
-                }
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        public void ReplaceHead(Regex newHead)
-        {
-                newHead._nextRegex = _nextRegex;
-                _nextRegex = null;
-        }
-
+        
         /// <summary>
         /// 与えられた文字列が先頭からこの正規表現にマッチするか判定。後続のことは考慮しない。
         /// </summary>

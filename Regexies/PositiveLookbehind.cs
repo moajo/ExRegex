@@ -26,7 +26,7 @@ namespace ExRegex.Regexies
             get { return "(?<=)"; }
         }
 
-        public override Regex Clone()
+        protected override Regex SingleClone()
         {
             return new PositiveLookbehind(_target,_condition);
         }

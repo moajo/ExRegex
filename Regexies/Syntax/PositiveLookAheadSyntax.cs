@@ -9,13 +9,19 @@ namespace ExRegex.Regexies.Syntax
 {
     public class PositiveLookAheadSyntax:Alias
     {
+        private readonly bool _captureContent;
+
+        private static readonly Regex Content =
+            new ZeroOrMore(new Or(new OrInvert('(', ')'), new Escaped('('), new Escaped(')'),
+                new UnEscapedBraces()));
         private static readonly Regex Gen =
          new UnEscaped('(').Literal("?=").To(
              new Capture(
                  new ZeroOrMore(new Or(new OrInvert('(', ')'), new Escaped('('), new Escaped(')'),
                      new UnEscapedBraces())))).To(new UnEscaped(')'));
-        public PositiveLookAheadSyntax() : base(()=>Gen)
+        public PositiveLookAheadSyntax(bool captureContent) : base(new UnEscaped('(').Literal("?=").To(captureContent?new Capture(Content) : Content).To(new UnEscaped(')')))
         {
+            _captureContent = captureContent;
         }
 
         public override string Name
@@ -23,9 +29,9 @@ namespace ExRegex.Regexies.Syntax
             get { return "PositiveLookAheadSyntax"; }
         }
 
-        public override Regex Clone()
+        protected override Regex SingleClone()
         {
-            return new PositiveLookAheadSyntax();
+            return new PositiveLookAheadSyntax(_captureContent);
         }
     }
 }

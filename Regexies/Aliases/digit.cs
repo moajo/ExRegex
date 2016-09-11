@@ -17,7 +17,7 @@ namespace ExRegex.Regexies.Aliases
             get { return "Digit"; }
         }
 
-        public override Regex Clone()
+        protected override Regex SingleClone()
         {
             return new Digit();
         }

@@ -63,12 +63,14 @@
     <Compile Include="Regexies\Capture.cs" />
     <Compile Include="Regexies\Char.cs" />
     <Compile Include="Regexies\CharRegex.cs" />
+    <Compile Include="Regexies\CountRepeater.cs" />
     <Compile Include="Regexies\Empty.cs" />
     <Compile Include="Regexies\Head.cs" />
     <Compile Include="Regexies\Literal.cs" />
     <Compile Include="Regexies\Named.cs" />
     <Compile Include="Regexies\NegativeLookahead.cs" />
     <Compile Include="Regexies\NegativeLookbehind.cs" />
+    <Compile Include="Regexies\NonGreedy.cs" />
     <Compile Include="Regexies\Not.cs" />
     <Compile Include="Regexies\OneOrMore.cs" />
     <Compile Include="Regexies\Or.cs" />
@@ -76,7 +78,7 @@
     <Compile Include="Regexies\PositiveLookahead.cs" />
     <Compile Include="Regexies\PositiveLookbehind.cs" />
     <Compile Include="Regexies\Reference.cs" />
-    <Compile Include="Regexies\Syntax\CountRepeater.cs" />
+    <Compile Include="Regexies\Syntax\CountRepeaterSyntax.cs" />
     <Compile Include="Regexies\Syntax\LookAheadSyntax.cs" />
     <Compile Include="Regexies\Syntax\LookBehindSyntax.cs" />
     <Compile Include="Regexies\Syntax\NegativeLookAheadSyntax.cs" />

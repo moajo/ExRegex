@@ -22,7 +22,7 @@ namespace ExRegex.Regexies
             get { return "Not"; }
         }
 
-        public override Regex Clone()
+        protected override Regex SingleClone()
         {
             return new Not(_arg);
         }

@@ -12,13 +12,20 @@ namespace ExRegex.Regexies.Syntax
     /// </summary>
     public class PositiveLookBehindSyntax:Alias
     {
+        private static readonly Regex Content =
+            new ZeroOrMore(new Or(new OrInvert('(', ')'), new Escaped('('), new Escaped(')'),
+                new UnEscapedBraces()));
         private static readonly Regex Gen =
             new UnEscaped('(').Literal("?<=").To(
                 new Capture(
                     new ZeroOrMore(new Or(new OrInvert('(', ')'), new Escaped('('), new Escaped(')'),
                         new UnEscapedBraces())))).To(new UnEscaped(')'));
-        public PositiveLookBehindSyntax() : base(()=>Gen)
+
+        private readonly bool _captureContent;
+
+        public PositiveLookBehindSyntax(bool captureContent) : base(new UnEscaped('(').Literal("?<=").To(captureContent?new Capture(Content) :Content ).To(new UnEscaped(')')))
         {
+            _captureContent = captureContent;
         }
 
         public override string Name
@@ -26,9 +33,9 @@ namespace ExRegex.Regexies.Syntax
             get { return "PositiveLookBehindSyntax"; }
         }
 
-        public override Regex Clone()
+        protected override Regex SingleClone()
         {
-            return new PositiveLookBehindSyntax();
+            return new PositiveLookBehindSyntax(_captureContent);
         }
     }
 }

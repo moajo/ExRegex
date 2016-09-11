@@ -20,7 +20,7 @@ namespace ExRegex.Regexies
             get { return "Literal"; }
         }
 
-        public override Regex Clone()
+        protected override Regex SingleClone()
         {
             return new Literal(str);
         }

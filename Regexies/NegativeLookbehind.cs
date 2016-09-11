@@ -22,7 +22,7 @@ namespace ExRegex.Regexies
             get { return "(?<=)"; }
         }
 
-        public override Regex Clone()
+        protected override Regex SingleClone()
         {
             return new NegativeLookbehind(_target,_condition);
         }

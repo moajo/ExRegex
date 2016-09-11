@@ -14,7 +14,7 @@ namespace ExRegex.Regexies
             get { return "Any"; }
         }
 
-        public override Regex Clone()
+        protected override Regex SingleClone()
         {
             return new Any();
         }

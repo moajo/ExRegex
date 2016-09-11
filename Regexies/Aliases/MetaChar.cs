@@ -13,7 +13,7 @@ namespace ExRegex.Regexies.Aliases
             get { return "MetaChar"; }
         }
 
-        public override Regex Clone()
+        protected override Regex SingleClone()
         {
             return new MetaChar();
         }

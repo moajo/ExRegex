@@ -10,7 +10,7 @@ namespace ExRegex.Regexies
             get { return "Tail"; }
         }
 
-        public override Regex Clone()
+        protected override Regex SingleClone()
         {
             return new Tail();
         }

@@ -116,11 +116,11 @@ namespace ExRegexSample
             //list3.Add(Tuple.Create("aa(?<=a)a(?=a)a", rgrg2 as Regex));//ok
             //list3.Add(Tuple.Create("aa(?!a)aa(?=a)a", rgrg2 as Regex));//ok
             //list3.Add(Tuple.Create("aa(?!a)aa*a", rgrg2 as Regex));//ok
-            list3.Add(Tuple.Create("aa(?!a)a|a*a|a", regexPattern as Regex));//ok
+            //list3.Add(Tuple.Create("aa(?!a)a|a*a|a", regexPattern as Regex));//ok
             //list3.Add(Tuple.Create("aa(?!a)a++a", rgrg2 as Regex));//ok
-            //list3.Add(Tuple.Create("{1,3a}", new CountRepeater() as Regex));//ok
-            //list3.Add(Tuple.Create("{1, }", new CountRepeater() as Regex));//ok
-            //list3.Add(Tuple.Create("{14}", new CountRepeater() as Regex));//ok
+            //list3.Add(Tuple.Create("{1,3a}", new CountRepeaterSyntax() as Regex));//ok
+            //list3.Add(Tuple.Create("{1, }", new CountRepeaterSyntax() as Regex));//ok
+            //list3.Add(Tuple.Create("{14}", new CountRepeaterSyntax() as Regex));//ok
             //list3.Add(Tuple.Create("aaa(ddd)f(f)f", rg));//ok
             //list3.Add(Tuple.Create("aaa(d(d)d)f(f)f", rg));//ok
             //list3.Add(Tuple.Create("aatestatest", Regex.Make().To(new OneOrMore(new Literal("a")))));
@@ -133,9 +133,16 @@ namespace ExRegexSample
             //list3.Add(Tuple.Create("(a(a))",rgx4));
             //list3.Add(Tuple.Create("bb(a(a))", rgx4));
             //list3.Add(Tuple.Create("nn(a(a)nn", rgx4));
+            //list3.Add(Tuple.Create("a", new CountRepeater("a",0,1) as Regex));
+            //list3.Add(Tuple.Create("a,aa,aaa,aaaa,aaaaa", new CountRepeater("a",1,1) as Regex));
+            //list3.Add(Tuple.Create("a,aa,aaa,aaaa,aaaaa", new CountRepeater("a",2,2) as Regex));
+            //list3.Add(Tuple.Create("a,aa,aaa,aaaa,aaaaa", new CountRepeater("a",1,2) as Regex));
+            //list3.Add(Tuple.Create("a,aa,aaa,aaaa,aaaaa", new CountRepeater("a",2,3) as Regex));
+            //list3.Add(Tuple.Create("nn(ann", RegexParser.RegexPattern));
             //list3.Add(Tuple.Create("123", Regex.Make().To(new Digit())));
             //list3.Add(Tuple.Create("123", Regex.Make().To(new OneOrMore(new Digit()))));
             //list3.Add(Tuple.Create(@"\\(()a\()aa(\\\(a)", new UnEscapedBraces() as  Regex));
+            //list3.Add(Tuple.Create(@"\\a\))\da(a\\s\(", new NegativeLookBehindSyntax(true).To(new Capture(independentPatern.To(new ZeroOrOne(new Or(new LookAheadSyntax(), new Repeater().To(new ZeroOrOne("?"))))))) as Regex));
 
             foreach (var tuple in list3)
             {
@@ -144,7 +151,7 @@ namespace ExRegexSample
                 Console.ReadLine();
 
             }
-            Console.ReadLine();
+            //Console.ReadLine();
 
             var strList = new List<string>();
             //strList.Add(@"aaaaaaaaaaa");//単純リテラル
@@ -172,6 +179,7 @@ namespace ExRegexSample
             //strList.Add(@"a\$\[$b]c");//エスケープ
             //strList.Add(@"a[abcde]b");//エスケープ
             //strList.Add(@"a[^abcde]b");//エスケープ
+            //strList.Add(@"a(");//エスケープ
 
             int count =0;
             foreach (var regStr in strList)
@@ -182,6 +190,7 @@ namespace ExRegexSample
 
                 Console.WriteLine("\n@@@Structure@@@");
                 Console.WriteLine(reg.ToStructureString());
+                Console.ReadLine();
             }
 
             var parseList = new List<Tuple<string, string>>();
@@ -217,14 +226,14 @@ namespace ExRegexSample
                 Console.WriteLine("\n\n");
             }
 
-
-
-            Console.Read();
-
         }
 
         private static void ShowLog(string message, string targetText, Regex regex)
         {
+            if (regex is Empty)
+            {
+                return;
+            }
             Console.WriteLine("-----------------------------------------------------------------------------------");
             Console.WriteLine(message);
             Console.WriteLine(String.Format("target:{0}", targetText));

@@ -22,7 +22,7 @@ namespace ExRegex.Parse
             get { return "Parsing"; }
         }
 
-        public override Regex Clone()
+        protected override Regex SingleClone()
         {
             return new ParsingRegex(_regexString);
         }

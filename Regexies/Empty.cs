@@ -13,7 +13,7 @@ namespace ExRegex.Regexies
             get { return "Empty"; }
         }
 
-        public override Regex Clone()
+        protected override Regex SingleClone()
         {
             return new Empty();
         }

@@ -14,7 +14,7 @@ namespace ExRegex.Regexies
             get { return "Head"; }
         }
 
-        public override Regex Clone()
+        protected override Regex SingleClone()
         {
             return new Head();
         }

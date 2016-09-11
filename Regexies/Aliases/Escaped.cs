@@ -23,7 +23,7 @@ namespace ExRegex.Regexies.Aliases
             get { return "Escaped"; }
         }
 
-        public override Regex Clone()
+        protected override Regex SingleClone()
         {
             return new Escaped(_target);
         }

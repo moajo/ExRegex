@@ -20,14 +20,14 @@ namespace ExRegex.Regexies
             get { return "char"; }
         }
 
-        public override Regex Clone()
+        protected override Regex SingleClone()
         {
             return new Char(_content);
         }
 
         public override string ToString()
         {
-            return base.ToString()+String.Format("({0})",_content);
+            return base.ToString()+String.Format("('{0}')",_content);
         }
 
         /// <summary>

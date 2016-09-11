@@ -8,17 +8,21 @@ namespace ExRegex.Regexies.Aliases
 {
     public class UnEscapedBraces:Alias
     {
+        private static Regex content =
+            new Capture(
+                new ZeroOrMore(new Or(new OrInvert('(', ')'), new Escaped('('), new Escaped(')'),
+                    new Reference("UnedcapedBraces"))));
         public override string Name
         {
             get { return "UnedcapedBraces"; }
         }
 
-        public override Regex Clone()
+        protected override Regex SingleClone()
         {
             return new UnEscapedBraces();
         }
 
-        public UnEscapedBraces() : base(()=> Make().To(new Named("UnedcapedBraces", new UnEscaped('(').To(new Capture(new ZeroOrMore(new Or(new OrInvert('(', ')'), new Escaped('('), new Escaped(')'), new Reference("UnedcapedBraces"))))).To(new UnEscaped(')')))))
+        public UnEscapedBraces(bool captureContent = false) : base(()=> Make().To(new Named("UnedcapedBraces", new UnEscaped('(').To(captureContent? new Capture(content): content).To(new UnEscaped(')')))))
         {
         }
     }

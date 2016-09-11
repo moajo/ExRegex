@@ -14,17 +14,23 @@ namespace ExRegex.Regexies
     public class Capture : Regex
     {
         private readonly Regex _content;
+        public string CaptureName { get; } = "";
 
         public Capture(Regex content)
         {
             _content = content;
+        }
+
+        public Capture(string name, Regex content) : this(content)
+        {
+            CaptureName = name;
         }
         public override string Name
         {
             get { return "Capture"; }
         }
 
-        public override Regex Clone()
+        protected override Regex SingleClone()
         {
             return new Capture(_content);
         }

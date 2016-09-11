@@ -26,7 +26,7 @@ namespace ExRegex.Regexies
             get { return "Named"; }
         }
 
-        public override Regex Clone()
+        protected override Regex SingleClone()
         {
             return new Named(_label,_content);
         }

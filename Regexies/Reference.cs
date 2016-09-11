@@ -24,7 +24,7 @@ namespace ExRegex.Regexies
             get { return "Reference"; }
         }
 
-        public override Regex Clone()
+        protected override Regex SingleClone()
         {
             return new Reference(_targetLabel);
         }

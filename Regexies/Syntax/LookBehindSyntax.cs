@@ -9,8 +9,10 @@ namespace ExRegex.Regexies.Syntax
 {
     public class LookBehindSyntax:Alias
     {
-        public LookBehindSyntax() : base(()=>new Or(new PositiveLookBehindSyntax(),new NegativeLookBehindSyntax()))
+        private bool _captureContent;
+        public LookBehindSyntax(bool captureContent=false) : base(()=>new Or(new PositiveLookBehindSyntax(captureContent),new NegativeLookBehindSyntax(captureContent)))
         {
+            _captureContent = captureContent;
         }
 
         public override string Name
@@ -18,9 +20,9 @@ namespace ExRegex.Regexies.Syntax
             get { return "LookBehindSyntax"; }
         }
 
-        public override Regex Clone()
+        protected override Regex SingleClone()
         {
-            return new LookBehindSyntax();
+            return new LookBehindSyntax(_captureContent);
         }
     }
 }

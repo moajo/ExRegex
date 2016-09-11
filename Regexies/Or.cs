@@ -23,7 +23,7 @@ namespace ExRegex.Regexies
             get { return "Or"; }
         }
 
-        public override Regex Clone()
+        protected override Regex SingleClone()
         {
             return new Or(_regexes);
         }

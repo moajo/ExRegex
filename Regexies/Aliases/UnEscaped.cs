@@ -8,7 +8,7 @@
     {
         private readonly char _target;
 
-        public UnEscaped(char target) : base(()=> new PositiveLookbehind(new Char(target), new Or(new Head(), new OrInvert('\\')).To(new ZeroOrMore(new Literal(@"\\")))))
+        public UnEscaped(char target) : base(new PositiveLookbehind(new Char(target), new Or(new Head(), new OrInvert('\\')).To(new ZeroOrMore(new Literal(@"\\")))))
         {
             _target = target;
         }
@@ -18,7 +18,7 @@
             get { return "Unescaped"; }
         }
 
-        public override Regex Clone()
+        protected override Regex SingleClone()
         {
             return new UnEscaped(_target);
         }
